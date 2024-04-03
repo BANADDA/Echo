@@ -46,7 +46,7 @@ function App() {
     {
       imgSrc: "./src/assets/llms.png",
       title: "Large Language Models",
-      items: ["Fine-tuning", "Zero-shot Learning", "Language Model Applications"],
+      items: ["Fine-tuning", "Zero-shot Learning", "Prompt Engineering"],
       link: "#link2"
     },
     {
