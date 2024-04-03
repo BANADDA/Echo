@@ -9,12 +9,13 @@ import { useEffect, useState } from "react";
 import {
   FaChartPie,
   FaCog,
+  FaExclamationTriangle,
   FaFileAlt,
   FaHome,
   FaMoon,
   FaProjectDiagram,
   FaSun,
-  FaTools,
+  FaTools
 } from "react-icons/fa";
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState('');
 
   // Menu items for the sidebar
   const Menus = [
@@ -35,30 +38,36 @@ function App() {
 
   const cards = [
     {
-      imgSrc: "./src/assets/multimodal.png",
-      title: "Generative AI",
-      description: "Because it's about motivating the doers. Because I'm here to follow my dreams and inspire others.",
+      imgSrc: "./src/assets/voice.png",
+      title: "Natural Language Processing",
+      items: ["Machine Translation", "Sentiment Analysis", "Text Classification"],
       link: "#link1"
     },
     {
       imgSrc: "./src/assets/llms.png",
-      title: "NLP/LLMs",
-      description: "Exploring the intersection of design and technology. Pushing boundaries for a better user experience.",
+      title: "Large Language Models",
+      items: ["Fine-tuning", "Zero-shot Learning", "Language Model Applications"],
       link: "#link2"
     },
     {
       imgSrc: "./src/assets/cv.png",
       title: "Computer Vision",
-      description: "Design is not just what it looks like and feels like. Design is how it works.",
+      items: ["Object Detection", "Image Classification", "Facial Recognition"],
       link: "#link3"
     },
     {
-      imgSrc: "./src/assets/voice.png",
-      title: "Speech/Voice",
-      description: "Great design is a multi-layered relationship between human life and its environment.",
+      imgSrc: "./src/assets/multimodal.png",
+      title: "Regression",
+      items: ["Linear Regression", "Logistic Regression", "Polynomial Regression"],
       link: "#link4"
     }
   ];
+
+  const handleExploreClick = (title) => {
+    setCurrentTitle(title);
+    setShowAlert(true);
+  };
+
 
   // Initial Theme Check
   useEffect(() => {
@@ -106,6 +115,26 @@ function App() {
 
   return (
     <div className="flex flex-col">
+
+      {showAlert && (
+        <div role="alert" className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div role="alert">
+    <div className="bg-red-500 text-white text-lg font-bold rounded-t px-4 py-2 flex items-center gap-2">
+      {/* Alert icon added here */}
+      <FaExclamationTriangle className="text-xl" />
+      {/* <svg className="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z"/></svg> */}
+      Oops
+    </div>
+    <div className="border border-t-0 bg-white px-4 py-3 text-black flex-wrap">
+      <p className="font-semibold">{currentTitle} under development. The feature will be available soon</p>
+      <button onClick={() => setShowAlert(false)} className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+      )}
+
       {/* Navbar */}
       <nav className="bg-green-900">
         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -382,51 +411,55 @@ function App() {
               </div>
             </div>
             <div className="flex flex-wrap gap-4 pt-14">
-  {cards.map((card, index) => (
-    <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
-      {/* Add transition and transform utilities to Card component */}
-      <Card className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white overflow-hidden transform transition duration-500 ease-in-out hover:scale-105">
-        <img
-          src={card.imgSrc}
-          alt={card.title}
-          className="w-full h-auto bg-slate-500"
-        />
-        <CardBody>
-          <Typography variant="h5" className="mb-2 text-blue-gray-900 dark:text-blue-gray-50">
-            {card.title}
-          </Typography>
-          <Typography className="text-gray-900 dark:text-gray-50">
-            {card.description}
-          </Typography>
-        </CardBody>
-        <CardFooter className="pt-0">
-          <a href={card.link} className="inline-block">
-            <Button size="sm" variant="text" className="flex items-center gap-2 text-gray-900 dark:text-white relative group">
-              Explore
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="h-4 w-4 transition-transform duration-200 ease-in-out transform group-hover:translate-x-1"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                />
-              </svg>
-            </Button>
-          </a>
-        </CardFooter>
-      </Card>
-    </div>
-  ))}
-</div>
-
-
-
+              {cards.map((card, index) => (
+                <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
+                  {/* Add transition and transform utilities to Card component */}
+                  <Card className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white overflow-hidden transform transition duration-500 ease-in-out hover:scale-105">
+                    <img
+                      src={card.imgSrc}
+                      alt={card.title}
+                      className="w-full h-auto bg-slate-500"
+                    />
+                    <CardBody>
+                      <Typography variant="h2" className="font-bold mb-2 text-blue-gray-900 dark:text-blue-gray-50">
+                        {card.title}
+                      </Typography>
+                      {/* Container for the list items with a light green background */}
+                      <div className="font-normal bg-green-50 dark:bg-slate-500 p-4 rounded-lg mt-5">
+                        <ul>
+                          {card.items.map((item, itemIndex) => (
+                            <li key={itemIndex} className="text-gray-900 dark:text-gray-50">
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardBody>
+                    <CardFooter className="pt-0">
+                      {/* <a href={card.link} className="inline-block"> */}
+                      <Button onClick={() => handleExploreClick(card.title)} size="sm" variant="text" className="flex items-center gap-2 text-gray-900 dark:text-white relative group">
+                        Explore
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          className="h-4 w-4 transition-transform duration-200 ease-in-out transform group-hover:translate-x-1"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                          />
+                        </svg>
+                      </Button>
+                      {/* </a> */}
+                    </CardFooter>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
