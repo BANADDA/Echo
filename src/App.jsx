@@ -1,71 +1,50 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Typography,
-} from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import {
-  FaChartPie,
-  FaCog,
-  FaExclamationTriangle,
-  FaFileAlt,
-  FaHome,
-  FaMoon,
-  FaProjectDiagram,
-  FaSun,
-  FaTools
-} from "react-icons/fa";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+// import {
+//   FaMoon,
+//   FaSun
+// } from "react-icons/fa";
+import AuthModal from "./auth/AuthModal";
+import { auth } from "./auth/config/firebase-config";
+import Alert from "./components/Alert";
+import MainContent from "./components/MainContent";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import { menus } from "./data/menus";
+import SignIn from "./screens/sign-in";
+import SignUp from "./screens/sign-up";
 
 function App() {
-  const [open, setOpen] = useState(false); // Changed default to false for sidebar
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [showAuthModel, setShowAuthModel] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('');
 
-  // Menu items for the sidebar
-  const Menus = [
-    { title: "Dashboard", Icon: FaHome }, // Example: using FaHome for Dashboard
-    { title: "Tools", Icon: FaTools, gap: true },
-    { title: "ML Flows", Icon: FaProjectDiagram },
-    { title: "Analytics", Icon: FaChartPie },
-    { title: "Model Files", Icon: FaFileAlt, gap: true },
-    { title: "Setting", Icon: FaCog },
-  ];
+  // Listen for changes in the authentication state
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setIsAuthenticated(true);
+      } else {
+        // User is signed out.
+        setIsAuthenticated(false);
+      }
+    });
+    themeCheck();
+  }, []);
 
-  const cards = [
-    {
-      imgSrc: "./src/assets/voice.png",
-      title: "Natural Language Processing",
-      items: ["Machine Translation", "Sentiment Analysis", "Text Classification"],
-      link: "#link1"
-    },
-    {
-      imgSrc: "./src/assets/llms.png",
-      title: "Large Language Models",
-      items: ["Fine-tuning", "Zero-shot Learning", "Prompt Engineering"],
-      link: "#link2"
-    },
-    {
-      imgSrc: "./src/assets/cv.png",
-      title: "Computer Vision",
-      items: ["Object Detection", "Image Classification", "Facial Recognition"],
-      link: "#link3"
-    },
-    {
-      imgSrc: "./src/assets/multimodal.png",
-      title: "Regression",
-      items: ["Linear Regression", "Logistic Regression", "Polynomial Regression"],
-      link: "#link4"
-    }
-  ];
-
-  const handleExploreClick = (title) => {
+  
+const handleExploreClick = (title) => {
+    if(isAuthenticated){
     setCurrentTitle(title);
     setShowAlert(true);
+    }
+    else {
+      setShowAuthModel(true)
+    }
   };
 
 
@@ -110,360 +89,45 @@ function App() {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  const toggleProfileDropdown = () =>
-    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  // const toggleProfileDropdown = () =>
+  //   setIsProfileDropdownOpen(!isProfileDropdownOpen);
 
   return (
-    <div className="flex flex-col">
-
+    <BrowserRouter> {/* Wrap your app content with BrowserRouter */}
+      <div className="flex flex-col">
+        {/* Conditionally render components based on route */}
+        <Routes>
+          <Route path="/" element={
+            <>
       {showAlert && (
-        <div role="alert" className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div role="alert">
-    <div className="bg-red-500 text-white text-lg font-bold rounded-t px-4 py-2 flex items-center gap-2">
-      {/* Alert icon added here */}
-      <FaExclamationTriangle className="text-xl" />
-      {/* <svg className="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z"/></svg> */}
-      Oops
-    </div>
-    <div className="border border-t-0 bg-white px-4 py-3 text-black flex-wrap">
-      <p className="font-semibold">{currentTitle} under development. The feature will be available soon</p>
-      <button onClick={() => setShowAlert(false)} className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-        Close
-      </button>
-    </div>
-  </div>
-</div>
+        <Alert currentTitle={currentTitle} onClose={() => setShowAlert(false)} />
       )}
-
+      {showAuthModel && (
+        <AuthModal onClose={() => setShowAuthModel(false)} />
+      )}
       {/* Navbar */}
-      <nav className="bg-green-900">
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-          <div className="relative flex h-16 items-center justify-between">
-            <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-              {/* Mobile menu button*/}
-              <button
-                type="button"
-                className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                aria-controls="mobile-menu"
-                aria-expanded="false"
-                onClick={toggleMobileMenu}
-              >
-                <span className="absolute -inset-0.5" />
-                <span className="sr-only">Open main menu</span>
-                {/*
-            Icon when menu is closed.
-
-            Menu open: "hidden", Menu closed: "block"
-          */}
-                <svg
-                  className="block h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                  />
-                </svg>
-                {/*
-            Icon when menu is open.
-
-            Menu open: "block", Menu closed: "hidden"
-          */}
-                <svg
-                  className="hidden h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <div className="flex flex-shrink-0 items-center">
-                <img
-                  className="h-8 w-auto"
-                  src="./src/assets/echo_1.png"
-                  alt="Echo"
-                />
-              </div>
-              <div className="hidden sm:ml-6 sm:block">
-                <div className="flex space-x-4">
-                  {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
-                  <a
-                    href="#"
-                    className="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium"
-                    aria-current="page"
-                  >
-                    Dashboard
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Projects
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Community
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                  >
-                    Pricing
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              {/* Theme Switch Button */}
-              <div onClick={themeSwitch} className="cursor-pointer">
-                {isDarkTheme ? (
-                  <FaSun className="text-2xl text-white" />
-                ) : (
-                  <FaMoon className="text-2xl text-yellow-400" />
-                )}
-              </div>
-              {/* Profile dropdown */}
-              <div className="relative ml-3">
-                <div>
-                  <button
-                    type="button"
-                    className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    id="user-menu-button"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    onClick={toggleProfileDropdown}
-                  >
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">Open user menu</span>
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    />
-                  </button>
-                </div>
-                {isProfileDropdownOpen && (
-                  <div
-                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="user-menu-button"
-                    tabIndex={-1}
-                  >
-                    {/* Active: "bg-gray-100", Not Active: "" */}
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700"
-                      role="menuitem"
-                      tabIndex={-1}
-                      id="user-menu-item-0"
-                    >
-                      Profile
-                    </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700"
-                      role="menuitem"
-                      tabIndex={-1}
-                      id="user-menu-item-1"
-                    >
-                      Settings
-                    </a>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700"
-                      role="menuitem"
-                      tabIndex={-1}
-                      id="user-menu-item-2"
-                    >
-                      Sign out
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Mobile menu, show/hide based on menu state. */}
-        <div className="sm:hidden" id="mobile-menu">
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
-            <a
-              href="#"
-              className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium"
-              aria-current="page"
-            >
-              Dashboard
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-            >
-              Projects
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-            >
-              Community
-            </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-            >
-              Pricing
-            </a>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar
+        isDarkTheme={isDarkTheme}
+        themeSwitch={themeSwitch}
+        toggleMobileMenu={toggleMobileMenu}
+        isMobileMenuOpen={isMobileMenuOpen}
+      />
       {/* Content Below Navbar */}
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div
-          className={`${open ? "w-72" : "w-20"
-            } h-screen p-5 pt-8 relative duration-300 ${isDarkTheme ? "dark:bg-gray-800" : "bg-dark-purple"
-            }`}
-        >
-          <img
-            src="./src/assets/control.png"
-            className={`absolute cursor-pointer -right-3 top-9 w-7 border-dark-purple
-       border-2 rounded-full  ${!open && "rotate-180"}`}
-            onClick={() => setOpen(!open)}
-          />
-          <div className="flex gap-x-4 items-center">
-            <img
-              src="./src/assets/logo.png"
-              className={`cursor-pointer duration-500 ${open && "rotate-[360deg]"
-                }`}
-            />
-            <h1
-              className={`text-gray-400 origin-left font-medium text-xl duration-200 ${!open && "scale-0"
-                }`}
-            >
-              Echo
-            </h1>
-          </div>
-          {/* Sidebar Menu Items */}
-          <ul className="pt-6">
-            {Menus.map((Menu, index) => (
-              <li
-                key={index}
-                className={`flex rounded-md p-2 cursor-pointer ${isDarkTheme
-                  ? "hover:bg-gray-700 text-gray-200"
-                  : "hover:bg-light-white text-gray-900"
-                  } items-center gap-x-4 ${Menu.gap ? "mt-9" : "mt-2"} ${index === 0 &&
-                  (isDarkTheme ? "bg-gray-700" : "bg-light-white")
-                  }`}
-              >
-                <Menu.Icon className="text-xl" /> {/* Use the Icon component */}
-                <span
-                  className={`${!open && "hidden"} origin-left duration-200 ${isDarkTheme ? "text-gray-200" : "text-gray-900"
-                    }`}
-                >
-                  {Menu.title}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+        <Sidebar isDarkTheme={isDarkTheme} Menus={menus} />
         {/* Main Content */}
         <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900">
-
-          <div className="flex-1 px-8 bg-slate-100 dark:bg-slate-900">
-            <div className="flex flex-col justify-between h-full rounded-lg bg-white dark:bg-slate-700 p-6">
-              <div className="pl-10"> {/* Adjust left padding to push content slightly right */}
-                {/* Container for the text details */}
-                <div className="text-left">
-                  <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Echo</h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 font-medium">
-                    Echo is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Echo, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
-                    Learn how Echo integrates seamlessly with your workflows to not only enhance model performance but also contribute towards a sustainable future in AI.
-                  </p>
-                </div>
-              </div>
-
-              {/* "Learn More" button at the bottom right */}
-              <div className="self-end mt-auto">
-                <button className="inline-flex items-center justify-center px-4 py-2 bg-green-800 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-white text-sm font-medium rounded-md transition-all duration-150 group">
-                  Learn More
-                  <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-4 pt-14">
-              {cards.map((card, index) => (
-                <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
-                  {/* Add transition and transform utilities to Card component */}
-                  <Card className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white overflow-hidden transform transition duration-500 ease-in-out hover:scale-105">
-                    <img
-                      src={card.imgSrc}
-                      alt={card.title}
-                      className="w-full h-auto bg-slate-500"
-                    />
-                    <CardBody>
-                      <Typography variant="h2" className="font-bold mb-2 text-blue-gray-900 dark:text-blue-gray-50">
-                        {card.title}
-                      </Typography>
-                      {/* Container for the list items with a light green background */}
-                      <div className="font-normal bg-green-50 dark:bg-slate-500 p-4 rounded-lg mt-5">
-                        <ul>
-                          {card.items.map((item, itemIndex) => (
-                            <li key={itemIndex} className="text-gray-900 dark:text-gray-50">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </CardBody>
-                    <CardFooter className="pt-0">
-                      {/* <a href={card.link} className="inline-block"> */}
-                      <Button onClick={() => handleExploreClick(card.title)} size="sm" variant="text" className="flex items-center gap-2 text-gray-900 dark:text-white relative group">
-                        Explore
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={2}
-                          stroke="currentColor"
-                          className="h-4 w-4 transition-transform duration-200 ease-in-out transform group-hover:translate-x-1"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                          />
-                        </svg>
-                      </Button>
-                      {/* </a> */}
-                    </CardFooter>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MainContent handleExploreClick={handleExploreClick} />
         </div>
       </div>
-    </div>
+            </>
+          } />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
