@@ -11,14 +11,26 @@ const Navbar = ({ isDarkTheme, themeSwitch }) => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  const [userPhotoURL, setUserPhotoURL] = useState('');
+  const [userEmail, setUserEmail] = useState(''); // Store user's email
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setAuthCheckCompleted(true);
+      if (user) {
+        setIsAuthenticated(true);
+        setUserPhotoURL(user.photoURL || 'path/to/default/image.png');
+        setUserEmail(user.email); // Set user's email
+        setUserName(user.displayName || "No Name"); // Set user's display name or a default value
+      } else {
+        setIsAuthenticated(false);
+        setUserPhotoURL('');
+        setUserEmail('');
+        setUserName('');
+      }
     });
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   // Function to sign out
@@ -148,24 +160,27 @@ const Navbar = ({ isDarkTheme, themeSwitch }) => {
             {/* Profile dropdown */}
           {isAuthenticated && (
             <div className="relative ml-3">
-              <div>
-                <button
-                  type="button"
-                  className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  id="user-menu-button"
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                  onClick={toggleProfileDropdown}
-                >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">Open user menu</span>
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
-                </button>
-              </div>
+            <div>
+  <button
+    type="button"
+    className="p-2 relative flex items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+    id="user-menu-button"
+    aria-expanded="false"
+    aria-haspopup="true"
+    onClick={toggleProfileDropdown}
+  >
+    <span className="absolute -inset-1.5" />
+    <span className="sr-only">Open user menu</span>
+    {/* User's Profile Image */}
+    <img
+      className="h-8 w-8 rounded-full"
+      src={userPhotoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"} // Default image URL as fallback
+      alt="User Profile"
+    />
+    {/* Optionally display user's name next to the image */}
+    <span className="ml-2 text-white hidden sm:inline-block">{userName || "User"}</span>
+  </button>
+</div>
               {isProfileDropdownOpen && (
                 <div
                   className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
