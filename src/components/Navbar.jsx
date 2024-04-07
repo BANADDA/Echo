@@ -88,7 +88,7 @@ const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
             <div className="flex flex-shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                src="./src/assets/echo_1.png"
+                src="./static/img/echo_1.png"
                 alt="Echo"
               />
             </div>

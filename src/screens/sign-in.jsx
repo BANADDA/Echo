@@ -148,7 +148,7 @@ export function SignIn() {
                 <span>Sign in With Google</span>
               </Button>
               <Button size="lg" color="white" className="flex items-center gap-2 justify-center shadow-md" fullWidth>
-                <img src="./src/assets/twitter-logo.svg" height={24} width={24} alt="" />
+                <img src="./static/img/twitter-logo.svg" height={24} width={24} alt="" />
                 <span>Sign in With Twitter</span>
               </Button>
             </div>
@@ -161,7 +161,7 @@ export function SignIn() {
         </div>
       <div className="w-2/5 lg:flex hidden">
         <img
-          src="./src/assets/login_bg.png"
+          src="./static/img/login_bg.png"
           className="min-h-full w-auto object-cover rounded-xl"
           alt="Login Background"
         />

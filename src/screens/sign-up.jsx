@@ -1,9 +1,9 @@
 import {
-  Alert,
-  Button,
-  Checkbox,
-  Input,
-  Typography,
+    Alert,
+    Button,
+    Checkbox,
+    Input,
+    Typography,
 } from "@material-tailwind/react";
 import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useState } from "react";
@@ -84,7 +84,7 @@ export function SignUp() {
       {signInError && <Alert color="red">{signInError}</Alert>}
       <div className="w-2/5 lg:flex hidden">
         <img
-          src="./src/assets/data.png"
+          src="./static/img/data.png"
           className="h-full w-full object-cover rounded-3xl"
         />
       </div>
@@ -167,7 +167,7 @@ export function SignUp() {
               <span>Sign up With Google</span>
             </Button>
             <Button size="lg" color="white" className="flex items-center gap-2 justify-center shadow-md" fullWidth>
-              <img src="./src/assets/twitter-logo.svg" height={24} width={24} alt="" />
+              <img src="./static/img/twitter-logo.svg" height={24} width={24} alt="" />
               <span>Sign up With Twitter</span>
             </Button>
           </div>

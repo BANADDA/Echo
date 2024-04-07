@@ -7,14 +7,14 @@ const Sidebar = ({ isDarkTheme, Menus }) => {
   return (
     <div className={`sidebar ${open ? "w-72" : "w-20"} h-screen p-5 pt-8 relative duration-300 ${isDarkTheme ? "dark:bg-gray-800" : "bg-dark-purple"}`}>
       <img
-        src="./src/assets/control.png"
+        src="./static/img/control.png"
         alt="Toggle Sidebar"
         className={`absolute cursor-pointer -right-3 top-9 w-7 border-dark-purple border-2 rounded-full ${!open && "rotate-180"}`}
         onClick={() => setOpen(!open)}
       />
       <div className="flex gap-x-4 items-center">
         <img
-          src="./src/assets/logo.png"
+          src="./static/img/logo.png"
           alt="Logo"
           className={`cursor-pointer duration-500 ${open && "rotate-[360deg]"}`}
         />

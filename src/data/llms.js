@@ -2,7 +2,7 @@ const LLMs_10B = [
   {
     id: "model-10b-01",
     name: "TextSynth",
-    imageUrl: "./src/assets/llm1.png",
+    imageUrl: "./static/img/llm1.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "100TB",
@@ -12,7 +12,7 @@ const LLMs_10B = [
   {
     id: "model-10b-02",
     name: "NarrativeGen",
-    imageUrl: "./src/assets/llm2.png",
+    imageUrl: "./static/img/llm2.png",
     parameters: "10B",
     base: "BERT",
     trainingDataSize: "150TB",
@@ -22,7 +22,7 @@ const LLMs_10B = [
   {
     id: "model-10b-03",
     name: "CodeCraft",
-    imageUrl: "./src/assets/llm3.png",
+    imageUrl: "./static/img/llm3.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "80TB",
@@ -32,7 +32,7 @@ const LLMs_10B = [
   {
     id: "model-10b-04",
     name: "QueryMaster",
-    imageUrl: "./src/assets/llm4.png",
+    imageUrl: "./static/img/llm4.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "90TB",
@@ -42,7 +42,7 @@ const LLMs_10B = [
   {
     id: "model-10b-05",
     name: "LyricistAI",
-    imageUrl: "./src/assets/llm5.png",
+    imageUrl: "./static/img/llm5.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "50TB",
@@ -52,7 +52,7 @@ const LLMs_10B = [
   {
     id: "model-10b-06",
     name: "DataDive",
-    imageUrl: "./src/assets/llm6.png",
+    imageUrl: "./static/img/llm6.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "70TB",
@@ -62,7 +62,7 @@ const LLMs_10B = [
   {
     id: "model-10b-07",
     name: "ChatBuddy",
-    imageUrl: "./src/assets/llm7.png",
+    imageUrl: "./static/img/llm7.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "120TB",
@@ -72,7 +72,7 @@ const LLMs_10B = [
   {
     id: "model-10b-08",
     name: "HealthGuide",
-    imageUrl: "./src/assets/llm8.png",
+    imageUrl: "./static/img/llm8.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "85TB",
@@ -82,7 +82,7 @@ const LLMs_10B = [
   {
     id: "model-10b-09",
     name: "EduTutor",
-    imageUrl: "./src/assets/llm9.png",
+    imageUrl: "./static/img/llm9.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "95TB",
@@ -92,7 +92,7 @@ const LLMs_10B = [
   {
     id: "model-10b-10",
     name: "FinanceForecaster",
-    imageUrl: "./src/assets/llm10.png",
+    imageUrl: "./static/img/llm10.png",
     parameters: "10B",
     base: "Transformer",
     trainingDataSize: "110TB",
@@ -105,7 +105,7 @@ const LLMs_20B = [
   {
     id: "model-20b-01",
     name: "DeepComprehend",
-    imageUrl: "./src/assets/llm6.png",
+    imageUrl: "./static/img/llm6.png",
     parameters: "20B",
     base: "Transformer-XL",
     trainingDataSize: "200TB",
