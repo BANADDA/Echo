@@ -85,13 +85,13 @@ const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
             </button>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex flex-shrink-0 items-center">
+            <a href='/' className="flex flex-shrink-0 items-center">
               <img
                 className="h-8 w-auto"
                 src="./static/img/echo_1.png"
                 alt="Echo"
               />
-            </div>
+            </a>
             {authCheckCompleted && !isAuthenticated ? (
               <div className="hidden sm:block sm:ml-6">
                 <div className="flex space-x-4">
