@@ -5,10 +5,11 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from '../auth/config/firebase-config';
 
-const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
+const Navbar = ({ isDarkTheme, themeSwitch }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authCheckCompleted, setAuthCheckCompleted] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
   const navigate = useNavigate();
 
@@ -28,6 +29,9 @@ const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
       console.error('Sign out error', error);
     });
   };
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
 
   return (
     <nav className="bg-green-900">
@@ -207,7 +211,8 @@ const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
         </div>
       </div>
       {/* Mobile menu, show/hide based on menu state. */}
-      <div className="sm:hidden" id="mobile-menu">
+      {isMobileMenuOpen && (
+        <div className="sm:hidden" id="mobile-menu">
         <div className="space-y-1 px-2 pb-3 pt-2">
           {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
           <a
@@ -236,7 +241,7 @@ const Navbar = ({ isDarkTheme, toggleMobileMenu, themeSwitch }) => {
             Pricing
           </a>
         </div>
-      </div>
+      </div>)}
     </nav>
   );
 };
