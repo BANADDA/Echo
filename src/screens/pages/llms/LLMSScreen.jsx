@@ -1,9 +1,10 @@
-import { Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
-import { useEffect, useState } from "react";
+import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "../../../components/Navbar";
 import hardwareOptions from "../../../data/hardwareOptions";
 import { LLMs_10B, LLMs_20B, LLMs_30B } from "../../../data/llms";
 import ModelCard from "../../../widgets/models";
+import CustomLoadingBar from "../../../widgets/progress";
 import CustomSelect from "../../../widgets/select";
 
 const LLMSScreen = () => {
@@ -11,14 +12,58 @@ const LLMSScreen = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [selectedModel, setSelectedModel] = useState(null);
     const [newModelName, setNewModelName] = useState('');
-    const [modelID, setModelID] = useState('');
     const [license, setLicense] = useState('Public');
     const [spaceHardware, setSpaceHardware] = useState('');
     const [huggingFaceDatasetID, setHuggingFaceDatasetID] = useState('');
+    const [showProgress, setShowProgress] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const intervalRef = useRef(null);
+    // Add state hooks for validation messages
+    const [modelNameError, setModelNameError] = useState('');
+    const [datasetIDError, setDatasetIDError] = useState('');
+    const [hardwareError, setHardwareError] = useState('');
+
+
+    const validateForm = () => {
+        let isValid = true;
+
+        // Validate Model Name
+        if (!newModelName.trim()) {
+            setModelNameError('Model name is required.');
+            isValid = false;
+        } else {
+            setModelNameError('');
+        }
+
+        // Validate Huggingface Dataset ID
+        if (!huggingFaceDatasetID.trim()) {
+            setDatasetIDError('Dataset ID is required.');
+            isValid = false;
+        } else {
+            setDatasetIDError('');
+        }
+
+        // Validate Training Hardware Selection
+        if (!spaceHardware) {
+            setHardwareError('Training hardware is required.');
+            isValid = false;
+        } else {
+            setHardwareError('');
+        }
+
+        return isValid;
+    };
 
     // Initial Theme Check
     useEffect(() => {
         themeCheck();
+        // Cleanup interval on component unmount
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, []);
 
     const themeCheck = () => {
@@ -28,21 +73,18 @@ const LLMSScreen = () => {
             document.documentElement.classList.add("dark");
             setIsDarkTheme(true);
         } else {
-            document.documentElement.classList.add("light");
+            document.documentElement.classList.remove("dark");
             setIsDarkTheme(false);
         }
     };
 
-    // Manual Theme Switch
     const themeSwitch = () => {
-        if (document.documentElement.classList.contains("dark")) {
+        if (isDarkTheme) {
             document.documentElement.classList.remove("dark");
-            document.documentElement.classList.add("light");
             localStorage.setItem("theme", "light");
             setIsDarkTheme(false);
         } else {
             document.documentElement.classList.add("dark");
-            document.documentElement.classList.remove("light");
             localStorage.setItem("theme", "dark");
             setIsDarkTheme(true);
         }
@@ -55,22 +97,52 @@ const LLMSScreen = () => {
     };
 
     const handleFineTune = (e) => {
-        e.preventDefault(); // Prevent the default form submission behavior
-        // Capture all the fields entered
-        const fineTuneData = {
-            modelName: newModelName,
-            modelID: selectedModel.id,
-            huggingFaceDatasetID,
-            spaceHardware,
-            license
-        };
-        console.log("Fine-tune data:", fineTuneData);
-        // Reset the form fields if needed
-        setNewModelName('');
-        setModelID('');
-        setHuggingFaceDatasetID('');
-        setSpaceHardware('');
+        e.preventDefault();
+
+        // Perform validation
+        if (!validateForm()) {
+            return; // Stop form submission if validation fails
+        }
+
+        // Clear any previous interval
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        setShowProgress(true);
+        setProgressValue(0);
+
+        // Simulate progress
+        intervalRef.current = setInterval(() => {
+            setProgressValue((prevValue) => {
+                const newValue = prevValue + 10;
+                if (newValue >= 100) {
+                    clearInterval(intervalRef.current);
+                    setShowProgress(false);
+
+                    // Show success alert
+                    setShowSuccessAlert(true);
+
+                    // Automatically hide the alert after 2 seconds
+                    setTimeout(() => {
+                        setShowSuccessAlert(false);
+                    }, 2000);
+
+                    // Clear the form fields after successful submission
+                    setNewModelName('');
+                    setHuggingFaceDatasetID('');
+                    setSelectedModel(null);
+                    setSpaceHardware(''); // Now correctly reset assuming useState was declared correctly
+                    setLicense('MIT'); // Reset to default or intended value
+
+                    return 100;
+                }
+                return newValue;
+            });
+        }, 300);
     };
+
+
 
     return (
         <>
@@ -168,7 +240,9 @@ const LLMSScreen = () => {
                                                         placeholder="Provide new model name"
                                                         value={newModelName}
                                                         onChange={(e) => setNewModelName(e.target.value)}
+                                                        error={modelNameError}
                                                     />
+                                                    {modelNameError && <div className="text-red-500 text-sm">{modelNameError}</div>}
                                                 </div>
                                                 <div className="mb-6">
                                                     <Typography variant="h6" color={isDarkTheme ? "white" : "blue-gray"}>
@@ -179,7 +253,9 @@ const LLMSScreen = () => {
                                                         placeholder="Provide dataset id from hugging face"
                                                         value={huggingFaceDatasetID} // Add value prop
                                                         onChange={(e) => setHuggingFaceDatasetID(e.target.value)}
+                                                        error={datasetIDError}
                                                     />
+                                                    {datasetIDError && <div className="text-red-500 text-sm">{datasetIDError}</div>}
                                                 </div>
                                                 <div className="mb-6">
                                                     <Typography variant="h6" color={isDarkTheme ? "white" : "blue-gray"}>
@@ -187,34 +263,36 @@ const LLMSScreen = () => {
                                                     </Typography>
                                                     <CustomSelect
                                                         options={hardwareOptions}
+                                                        value={spaceHardware} // Ensure you have a value prop if your component supports it
                                                         onChange={(selectedOptions) => setSpaceHardware(selectedOptions)}
                                                     />
+                                                    {hardwareError && <div className="text-red-500 text-sm mt-2">{hardwareError}</div>}
                                                 </div>
                                                 <div className="mb-6">
-    <Typography variant="h6" color={isDarkTheme ? "white" : "blue-gray"}>
-        License
-    </Typography>
-    <div className="relative">
-        <select
-            className="block appearance-none w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-            value={license}
-            onChange={(e) => setLicense(e.target.value)}
-        >
-            <option value="MIT">MIT</option>
-            <option value="GPL">GPL</option>
-            <option value="Apache">Apache</option>
-            <option value="Other">Other</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-white">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path
-                    fillRule="evenodd"
-                    d="M13.348 7.681l3.864 5.662a1 1 0 0 1-1.664 1.105L12 10.158l-3.548 4.29a1 1 0 1 1-1.664-1.105l3.864-5.662a1 1 0 0 1 1.664 0zM10 4a1 1 0 0 0-1 1v9a1 1 0 1 0 2 0V5a1 1 0 0 0-1-1z"
-                />
-            </svg>
-        </div>
-    </div>
-</div>
+                                                    <Typography variant="h6" color={isDarkTheme ? "white" : "blue-gray"}>
+                                                        License
+                                                    </Typography>
+                                                    <div className="relative">
+                                                        <select
+                                                            className="block appearance-none w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                            value={license}
+                                                            onChange={(e) => setLicense(e.target.value)}
+                                                        >
+                                                            <option value="MIT">MIT</option>
+                                                            <option value="GPL">GPL</option>
+                                                            <option value="Apache">Apache</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-white">
+                                                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                                <path
+                                                                    fillRule="evenodd"
+                                                                    d="M13.348 7.681l3.864 5.662a1 1 0 0 1-1.664 1.105L12 10.158l-3.548 4.29a1 1 0 1 1-1.664-1.105l3.864-5.662a1 1 0 0 1 1.664 0zM10 4a1 1 0 0 0-1 1v9a1 1 0 1 0 2 0V5a1 1 0 0 0-1-1z"
+                                                                />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <Button type="submit" className="mt-6 bg-green-600" fullWidth>
                                                     Start training
                                                 </Button>
@@ -231,6 +309,24 @@ const LLMSScreen = () => {
                     </div>
                 </div>
             </div>
+
+            {
+                showProgress && (
+                    <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center backdrop-filter backdrop-blur-sm z-50">
+                        <div className="w-full px-4 md:px-20 lg:max-w-4xl">
+                            <CustomLoadingBar progress={progressValue} label="Submitting" />
+                        </div>
+                    </div>
+                )
+            }{
+                showSuccessAlert && (
+                    <div className="fixed inset-0 flex justify-center items-center backdrop-filter backdrop-blur-sm px-4">
+                        <div className="w-full max-w-md mx-auto">
+                            <Alert color="green">Model submitted for training successfully!</Alert>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 };
