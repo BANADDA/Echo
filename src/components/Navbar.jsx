@@ -5,7 +5,7 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from '../auth/config/firebase-config';
 
-const Navbar = ({ isDarkTheme, themeSwitch }) => {
+const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authCheckCompleted, setAuthCheckCompleted] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -190,15 +190,14 @@ const Navbar = ({ isDarkTheme, themeSwitch }) => {
                   tabIndex={-1}
                 >
                   {/* Active: "bg-gray-100", Not Active: "" */}
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700"
+                  <div onClick={onProfileClick} className="cursor-pointer
+                    block px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex={-1}
                     id="user-menu-item-0"
                   >
                     Profile
-                  </a>
+                  </div>
                   <a
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-700"
@@ -264,6 +263,7 @@ const Navbar = ({ isDarkTheme, themeSwitch }) => {
 // Define prop types for type checking
 Navbar.propTypes = {
   isDarkTheme: PropTypes.bool.isRequired,
+  onProfileClick: PropTypes.bool.isRequired,
   toggleTheme: PropTypes.func.isRequired,
   toggleMobileMenu: PropTypes.func.isRequired,
   themeSwitch: PropTypes.func

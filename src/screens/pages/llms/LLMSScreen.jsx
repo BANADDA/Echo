@@ -1,11 +1,13 @@
 import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
 import { useEffect, useRef, useState } from "react";
+import { auth } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
 import hardwareOptions from "../../../data/hardwareOptions";
 import { LLMs_10B, LLMs_20B, LLMs_30B } from "../../../data/llms";
 import ModelCard from "../../../widgets/models";
 import CustomLoadingBar from "../../../widgets/progress";
 import CustomSelect from "../../../widgets/select";
+import UserInfoPopup from "../../../widgets/userInfo";
 
 const LLMSScreen = () => {
     const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -23,6 +25,9 @@ const LLMSScreen = () => {
     const [modelNameError, setModelNameError] = useState('');
     const [datasetIDError, setDatasetIDError] = useState('');
     const [hardwareError, setHardwareError] = useState('');
+    const [isProfileClicked, setIsProfileClicked] = useState(false);
+  
+    const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
 
 
     const validateForm = () => {
@@ -142,17 +147,58 @@ const LLMSScreen = () => {
         }, 300);
     };
 
+    
+  const [user, setUser] = useState({
+    isAuthenticated: false,
+    name: '',
+    email: '',
+    photoURL: ''
+  });
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        setUser({
+          isAuthenticated: true,
+          name: user.displayName || 'No Name',
+          email: user.email,
+          photoURL: user.photoURL || 'path/to/default/image.png'
+        });
+      } else {
+        // User is signed out
+        setUser({
+          isAuthenticated: false,
+          name: '',
+          email: '',
+          photoURL: ''
+        });
+      }
+    });
+  }, []);
+
 
 
     return (
         <>
             <div className="flex flex-col h-auto">
-                <Navbar
-                    isDarkTheme={isDarkTheme}
-                    themeSwitch={themeSwitch}
-                    toggleMobileMenu={toggleMobileMenu}
-                    isMobileMenuOpen={isMobileMenuOpen}
-                />
+            {isProfileClicked && (
+              <UserInfoPopup
+                onClose={() => setIsProfileClicked(false)}
+                userName={user.name}
+                userEmail={user.email}
+                userPhotoURL={user.photoURL}
+              />
+            )}
+
+            <Navbar
+              isDarkTheme={isDarkTheme}
+              themeSwitch={themeSwitch}
+              toggleMobileMenu={toggleMobileMenu}
+              isMobileMenuOpen={isMobileMenuOpen}
+              onProfileClick={toggleProfileWidget} // Passing the function as a prop
+            />
                 <div className="h-full flex flex-col md:flex-row bg-slate-100 dark:bg-slate-900">
                     <div className="w-full md:w-1/3 p-4">
                         {/* Column 1: Large Card */}

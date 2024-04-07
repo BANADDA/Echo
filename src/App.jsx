@@ -10,6 +10,7 @@ import { menus } from "./data/menus";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
+import UserInfoPopup from "./widgets/userInfo";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,6 +19,10 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
   const [showAuthModel, setShowAuthModel] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('');
+  const [isProfileClicked, setIsProfileClicked] = useState(false);
+
+  const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
+
 
   // Listen for changes in the authentication state
   useEffect(() => {
@@ -84,6 +89,36 @@ function App() {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
+  const [user, setUser] = useState({
+    isAuthenticated: false,
+    name: '',
+    email: '',
+    photoURL: ''
+  });
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        setUser({
+          isAuthenticated: true,
+          name: user.displayName || 'No Name',
+          email: user.email,
+          photoURL: user.photoURL || 'path/to/default/image.png'
+        });
+      } else {
+        // User is signed out
+        setUser({
+          isAuthenticated: false,
+          name: '',
+          email: '',
+          photoURL: ''
+        });
+      }
+    });
+  }, []);
+
   return (
     <div className="flex flex-col">
       <Routes>
@@ -95,11 +130,21 @@ function App() {
             {showAuthModel && (
               <AuthModal onClose={() => setShowAuthModel(false)} />
             )}
+            {isProfileClicked && (
+              <UserInfoPopup
+                onClose={() => setIsProfileClicked(false)}
+                userName={user.name}
+                userEmail={user.email}
+                userPhotoURL={user.photoURL}
+              />
+            )}
+
             <Navbar
               isDarkTheme={isDarkTheme}
               themeSwitch={themeSwitch}
               toggleMobileMenu={toggleMobileMenu}
               isMobileMenuOpen={isMobileMenuOpen}
+              onProfileClick={toggleProfileWidget} // Passing the function as a prop
             />
             <div className="flex flex-1">
               <Sidebar isDarkTheme={isDarkTheme} Menus={menus} />
