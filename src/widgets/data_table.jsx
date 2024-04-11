@@ -1,263 +1,188 @@
+import { Button, Menu, MenuItem } from "@material-tailwind/react";
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from "react";
+import { BsArrowLeft, BsArrowRight, BsChevronDown, BsChevronUp } from "react-icons/bs";
+import { fetchTrainingJobsForUser } from "../auth/config/firebase-config";
 
-import {
-  Avatar,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Chip,
-  IconButton,
-  Tooltip,
-  Typography
-} from "@material-tailwind/react";
-import { BiPencil } from "react-icons/bi";
- 
-const TABLE_HEAD = ["Transaction", "Amount", "Date", "Status", "Account", ""];
- 
-const TABLE_ROWS = [
-  {
-    img: "https://docs.material-tailwind.com/img/logos/logo-spotify.svg",
-    name: "Spotify",
-    amount: "$2,500",
-    date: "Wed 3:00pm",
-    status: "paid",
-    account: "visa",
-    accountNumber: "1234",
-    expiry: "06/2026",
-  },
-  {
-    img: "https://docs.material-tailwind.com/img/logos/logo-amazon.svg",
-    name: "Amazon",
-    amount: "$5,000",
-    date: "Wed 1:00pm",
-    status: "paid",
-    account: "master-card",
-    accountNumber: "1234",
-    expiry: "06/2026",
-  },
-  {
-    img: "https://docs.material-tailwind.com/img/logos/logo-pinterest.svg",
-    name: "Pinterest",
-    amount: "$3,400",
-    date: "Mon 7:40pm",
-    status: "pending",
-    account: "master-card",
-    accountNumber: "1234",
-    expiry: "06/2026",
-  },
-  {
-    img: "https://docs.material-tailwind.com/img/logos/logo-google.svg",
-    name: "Google",
-    amount: "$1,000",
-    date: "Wed 5:00pm",
-    status: "paid",
-    account: "visa",
-    accountNumber: "1234",
-    expiry: "06/2026",
-  },
-  {
-    img: "https://docs.material-tailwind.com/img/logos/logo-netflix.svg",
-    name: "netflix",
-    amount: "$14,000",
-    date: "Wed 3:30am",
-    status: "cancelled",
-    account: "visa",
-    accountNumber: "1234",
-    expiry: "06/2026",
-  },
-];
- 
-export function TransactionsTable() {
+const TABLE_HEAD = ["Model Name", "Domain", "Model ID", "Dataset ID", "GPU Selected", "Job Status", "Action"];
+
+ModelTable.propTypes = {
+  domainFilter: PropTypes.any,
+  statusFilter: PropTypes.any,
+};
+
+export function ModelTable({ domainFilter, statusFilter }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [trainingJobs, setTrainingJobs] = useState([]);
+  const [activeRow, setActiveRow] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const modelsPerPage = 5;
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const fetchedJobs = await fetchTrainingJobsForUser();
+      setTrainingJobs(fetchedJobs);
+    };
+    fetchJobs();
+  }, []); // Fetch jobs on component mount
+
+  // Apply filters to trainingJobs if filter is set
+  const filteredModels = trainingJobs.filter(row => {
+    return (!domainFilter || row.domain === domainFilter) && (!statusFilter || row.jobStatus === statusFilter);
+  }).filter(row => row.modelName.toLowerCase().includes(searchValue.toLowerCase()));
+
+  // Calculate the range of page numbers to display
+  const rangeStart = Math.max(1, currentPage - 2);
+  const rangeEnd = Math.min(currentPage + 2, Math.ceil(filteredModels.length / modelsPerPage));
+
+  // Function to handle pagination click
+  const handlePaginationClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Function to handle action click
+  const handleActionClick = (rowIndex) => {
+    setActiveRow(activeRow === rowIndex ? null : rowIndex);
+  };
+
   return (
-    <Card className="h-auto mt-10 p-5 bg-gray-200 pt-2 dark:bg-gray-800 text-gray-800 dark:text-white w-full">
-      <CardHeader floated={false} shadow={false} className="rounded-none">
-        <div className="mb-4 flex p-5 flex-col justify-between bg-gray-200 pt-2 dark:bg-gray-600 text-gray-800 dark:text-white gap-8 md:flex-row md:items-center">
-          <div>
-            <Typography variant="h5" color="blue-gray">
-              Model Repositories
-            </Typography>
-            <Typography color="gray" className="mt-1 text-gray-800 dark:text-white font-normal">
-              Monitor you fine-tuned ML models
-            </Typography>
-          </div>
-          <div className="flex w-full shrink-0 gap-2 md:w-max">
-            {/* Add beautiful search field */}
-          </div>
+    <div className="h-auto mt-10 p-5 bg-gray-200 pt-2 dark:bg-gray-800 text-gray-800 dark:text-white w-full relative">
+      <div className="mb-4 flex p-5 flex-col justify-between bg-gray-200 pt-2 dark:bg-gray-600 text-gray-800 dark:text-white gap-8 md:flex-row md:items-center">
+        <div>
+          <h5 className="text-xl font-bold">Model Repositories</h5>
+          <p className="mt-1 text-gray-800 dark:text-white font-normal">
+            Monitor your fine-tuned ML models
+          </p>
         </div>
-      </CardHeader>
-      <CardBody className="overflow-scroll px-0">
+        <div className="flex w-full shrink-0 gap-2 md:w-max">
+          <input
+            type="text"
+            placeholder="Search by model name"
+            className="border border-gray-300 rounded-md text-gray-800 dark:text-black px-3 py-1 focus:outline-none focus:ring focus:border-blue-300"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="overflow-scroll px-0">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
-              {TABLE_HEAD.map((head) => (
+              {TABLE_HEAD.map((head, index) => (
                 <th
-                  key={head}
+                  key={index}
                   className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
                 >
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal leading-none opacity-70"
-                  >
+                  <span className="text-blue-gray font-normal leading-none opacity-70">
                     {head}
-                  </Typography>
+                  </span>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {TABLE_ROWS.map(
-              (
-                {
-                  img,
-                  name,
-                  amount,
-                  date,
-                  status,
-                  account,
-                  accountNumber,
-                  expiry,
-                },
-                index,
-              ) => {
-                const isLast = index === TABLE_ROWS.length - 1;
-                const classes = isLast
-                  ? "p-4"
-                  : "p-4 border-b border-blue-gray-50";
- 
-                return (
-                  <tr key={name}>
-                    <td className={classes}>
-                      <div className="flex items-center gap-3">
-                        <Avatar
-                          src={img}
-                          alt={name}
-                          size="md"
-                          className="border border-blue-gray-50 bg-blue-gray-50/50 object-contain p-1"
-                        />
-                        <Typography
-                          variant="small"
-                          color="blue-gray"
-                          className="font-bold"
-                        >
-                          {name}
-                        </Typography>
-                      </div>
-                    </td>
-                    <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {amount}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {date}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <div className="w-max">
-                        <Chip
-                          size="sm"
-                          variant="ghost"
-                          value={status}
-                          color={
-                            status === "paid"
-                              ? "green"
-                              : status === "pending"
-                              ? "amber"
-                              : "red"
-                          }
-                        />
-                      </div>
-                    </td>
-                    <td className={classes}>
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-12 rounded-md border border-blue-gray-50 p-1">
-                          <Avatar
-                            src={
-                              account === "visa"
-                                ? "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/logos/visa.png"
-                                : "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/logos/mastercard.png"
-                            }
-                            size="sm"
-                            alt={account}
-                            variant="square"
-                            className="h-full w-full object-contain p-1"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="font-normal capitalize"
-                          >
-                            {account.split("-").join(" ")} {accountNumber}
-                          </Typography>
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="font-normal opacity-70"
-                          >
-                            {expiry}
-                          </Typography>
-                        </div>
-                      </div>
-                    </td>
-                    <td className={classes}>
-                      <Tooltip content="Edit User">
-                        <IconButton variant="text">
-                          <BiPencil className="h-4 w-4" />
-                        </IconButton>
-                      </Tooltip>
-                    </td>
-                  </tr>
-                );
-              },
-            )}
+            {filteredModels.slice((currentPage - 1) * modelsPerPage, currentPage * modelsPerPage).map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.modelName}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.domain}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.modelId}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.datasetId}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.gpu}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                  <span className="text-blue-gray font-normal">{row.jobStatus}</span>
+                </td>
+                <td className="border-b border-blue-gray-50 p-4">
+                 <div className="relative">
+  <Button
+    size="sm"
+    onClick={() => handleActionClick(rowIndex)}
+    buttonType="link"
+    ripple="dark"
+    className="flex items-center"
+  >
+    <span>Action </span>
+    {activeRow === rowIndex ? <BsChevronUp className="ml-1" /> : <BsChevronDown className="ml-1" />}
+  </Button>
+
+  {activeRow === rowIndex && (
+    <div className="absolute top-0 right-0 mt-10 bg-white dark:bg-green-800 shadow-md rounded-md z-50">
+      <Menu
+        placement="bottom-start"
+        onClick={() => setActiveRow(null)}
+      >
+        <MenuItem className="text-gray-800 dark:text-white" ripple="light">
+          Start Training
+        </MenuItem>
+        <MenuItem className="text-gray-800 dark:text-white" ripple="light">
+          Delete Model
+        </MenuItem>
+        <MenuItem className="text-gray-800 dark:text-white " ripple="light">
+          Stop Training
+        </MenuItem>
+      </Menu>
+    </div>
+  )}
+</div>
+
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </CardBody>
-      <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
-  <Button variant="outlined" size="sm">
-    Previous
-  </Button>
-  <div className="flex items-center gap-2 text-gray-800 dark:text-white">
-    <IconButton variant="outlined" size="sm">
-      1
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      2
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      3
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      ...
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      8
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      9
-    </IconButton>
-    <IconButton variant="text" size="sm">
-      10
-    </IconButton>
-  </div>
-  <Button variant="outlined" size="sm">
-    Next
-  </Button>
-</CardFooter>
+      </div>
 
-    </Card>
+      <div className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+        <Button
+          onClick={() => handlePaginationClick(currentPage - 1)}
+          disabled={currentPage === 1}
+          color="gray"
+          buttonType="link"
+          size="sm"
+          rounded={false}
+          iconOnly
+          ripple="light"
+        >
+          <BsArrowLeft strokeWidth={2} className="h-4 w-4" />
+        </Button>
+        <div className="flex items-center gap-3">
+          {[...Array(rangeEnd - rangeStart + 1).keys()].map((pageNumber) => (
+            <Button
+              key={pageNumber + rangeStart}
+              onClick={() => handlePaginationClick(pageNumber + rangeStart)}
+              color={currentPage === pageNumber + rangeStart ? "lightBlue" : "gray"}
+              buttonType="link"
+              size="sm"
+              rounded={false}
+              ripple="light"
+            >
+              {pageNumber + rangeStart}
+            </Button>
+          ))}
+        </div>
+        <Button
+          onClick={() => handlePaginationClick(currentPage + 1)}
+          disabled={currentPage === Math.ceil(filteredModels.length / modelsPerPage)}
+          color="gray"
+          buttonType="link"
+          size="sm"
+          rounded={false}
+          iconOnly
+          ripple="light"
+        >
+          <BsArrowRight strokeWidth={2} className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 }

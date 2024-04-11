@@ -1,6 +1,7 @@
 import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
 import { useEffect, useRef, useState } from "react";
-import { auth } from "../../../auth/config/firebase-config";
+import { useNavigate } from 'react-router-dom';
+import { addTrainingJob, auth } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
 import hardwareOptions from "../../../data/hardwareOptions";
 import { LLMs_10B, LLMs_20B, LLMs_30B } from "../../../data/llms";
@@ -26,6 +27,8 @@ const LLMSScreen = () => {
     const [datasetIDError, setDatasetIDError] = useState('');
     const [hardwareError, setHardwareError] = useState('');
     const [isProfileClicked, setIsProfileClicked] = useState(false);
+    const navigate = useNavigate();
+
 
     const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
 
@@ -101,52 +104,134 @@ const LLMSScreen = () => {
         setSelectedModel(model);
     };
 
-    const handleFineTune = (e) => {
-        e.preventDefault();
-
-        // Perform validation
-        if (!validateForm()) {
-            return; // Stop form submission if validation fails
+    // Define a separate function to handle the asynchronous operation
+    const handleTrainingJobSubmission = async () => {
+        try {
+            console.log("Submitting training job...");
+            console.log("Selected Model:", selectedModel);
+            console.log("New Model Name:", newModelName);
+            console.log("Huggingface Dataset ID:", huggingFaceDatasetID);
+            console.log("Space Hardware:", spaceHardware);
+            console.log("License:", license);
+    
+            // Add domain and job status values here
+            const domain = "Large Language Models";
+            const jobStatus = "Queued";
+        
+            await addTrainingJob(
+                selectedModel.name,
+                selectedModel.id, // Assuming you have an 'id' property in selectedModel
+                huggingFaceDatasetID,
+                spaceHardware,
+                license,
+                domain,
+                jobStatus // Pass domain and job status
+            );
+            console.log("Training job submitted successfully!");
+            navigate('/models');
+            setShowSuccessAlert(true);
+        } catch (error) {
+            console.error("Failed to submit the model for training:", error);
         }
+    
+        // Clear the form fields after successful submission or in case of error
+        setShowProgress(false);
+        setNewModelName('');
+        setHuggingFaceDatasetID('');
+        setSelectedModel(null);
+        setSpaceHardware('');
+        setLicense('MIT'); // Reset to default or intended value
+    };   
 
-        // Clear any previous interval
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+// Update the handleFineTune function to call the new function
+const handleFineTune = async (e) => {
+    e.preventDefault();
 
-        setShowProgress(true);
-        setProgressValue(0);
+    // Perform validation
+    if (!validateForm()) {
+        return; // Stop form submission if validation fails
+    }
 
-        // Simulate progress
-        intervalRef.current = setInterval(() => {
-            setProgressValue((prevValue) => {
-                const newValue = prevValue + 10;
-                if (newValue >= 100) {
-                    clearInterval(intervalRef.current);
-                    setShowProgress(false);
+    // Clear any previous interval
+    if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+    }
 
-                    // Show success alert
-                    setShowSuccessAlert(true);
+    setShowProgress(true);
+    setProgressValue(0);
 
-                    // Automatically hide the alert after 2 seconds
-                    setTimeout(() => {
-                        setShowSuccessAlert(false);
-                    }, 2000);
+    // Simulate progress
+    intervalRef.current = setInterval(() => {
+        setProgressValue((prevValue) => {
+            const newValue = prevValue + 10;
+            if (newValue >= 100) {
+                clearInterval(intervalRef.current);
+                setShowProgress(false);
+                handleTrainingJobSubmission();
+                return 100;
+            }
+            return newValue;
+        });
+    }, 300);
+};
 
-                    // Clear the form fields after successful submission
-                    setNewModelName('');
-                    setHuggingFaceDatasetID('');
-                    setSelectedModel(null);
-                    setSpaceHardware(''); // Now correctly reset assuming useState was declared correctly
-                    setLicense('MIT'); // Reset to default or intended value
 
-                    return 100;
-                }
-                return newValue;
-            });
-        }, 300);
-    };
+    // const handleFineTune = async (e) => {
+    //     e.preventDefault();
 
+    //     // Perform validation
+    //     if (!validateForm()) {
+    //         return; // Stop form submission if validation fails
+    //     }
+
+    //     // Clear any previous interval
+    //     if (intervalRef.current) {
+    //         clearInterval(intervalRef.current);
+    //     }
+
+    //     setShowProgress(true);
+    //     setProgressValue(0);
+
+    //     // Simulate progress
+    //     intervalRef.current = setInterval(() => {
+    //         setProgressValue(async (prevValue) => {
+    //             const newValue = prevValue + 10;
+    //             if (newValue >= 100) {
+    //                 clearInterval(intervalRef.current);
+    //                 setShowProgress(false);
+        
+    //                 // Show success alert
+    //                 setShowSuccessAlert(true);
+    //                 try {
+    //                     await addTrainingJob(
+    //                         selectedModel.name,
+    //                         newModelName,
+    //                         huggingFaceDatasetID,
+    //                         spaceHardware,
+    //                         license
+    //                     );
+    //                     navigate('/models');
+    //                     setShowSuccessAlert(false);
+    //                 } catch (error) {
+    //                     console.error("Failed to submit the model for training:", error);
+    //                     setShowProgress(false);
+    //                     setShowSuccessAlert(false);
+    //                 }
+        
+    //                 // Clear the form fields after successful submission
+    //                 setNewModelName('');
+    //                 setHuggingFaceDatasetID('');
+    //                 setSelectedModel(null);
+    //                 setSpaceHardware('');
+    //                 setLicense('MIT'); // Reset to default or intended value
+        
+    //                 return 100;
+    //             }
+    //             return newValue;
+    //         });
+    //     }, 300);
+        
+    // };
 
     const [user, setUser] = useState({
         isAuthenticated: false,
@@ -200,7 +285,7 @@ const LLMSScreen = () => {
                         isMobileMenuOpen={isMobileMenuOpen}
                         onProfileClick={toggleProfileWidget}
                     />
-                </div> 
+                </div>
                 <div className="pt-[heightOfNavbar]">
                     <div className="h-full flex flex-col md:flex-row bg-slate-100 dark:bg-slate-900">
                         <div className="sticky top-0 w-full md:w-1/3 p-4 h-screen overflow-auto"

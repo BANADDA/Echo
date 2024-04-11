@@ -7,7 +7,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { auth } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
-import { TransactionsTable } from "../../../widgets/data_table";
+import { ModelTable } from "../../../widgets/data_table";
 import UserInfoPopup from "../../../widgets/userInfo";
 
 const ModelsScreen = () => {
@@ -15,6 +15,18 @@ const ModelsScreen = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const intervalRef = useRef(null);
     const [isProfileClicked, setIsProfileClicked] = useState(false);
+
+    const [domainFilter, setDomainFilter] = useState(null);
+const [statusFilter, setStatusFilter] = useState(null);
+
+// Handlers for filter buttons
+const handleDomainFilterChange = (domain) => {
+    setDomainFilter(domain === domainFilter ? null : domain); // Toggle filter on/off
+};
+
+const handleStatusFilterChange = (status) => {
+    setStatusFilter(status === statusFilter ? null : status); // Toggle filter on/off
+};
 
     const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
     const [navbarHeight, setNavbarHeight] = useState(0);
@@ -151,19 +163,21 @@ const ModelsScreen = () => {
                                         <div className="mb-5 text-left">
                                             <Button fullWidth disabled className="mb-5">Domain</Button>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Computer Vision</Button>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Large Language Model</Button>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Language Processing</Button>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Regression Models</Button>
+                                               <Button variant="text" onClick={() => handleDomainFilterChange()} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>All</Button>
+                                                <Button variant="text" onClick={() => handleDomainFilterChange("Computer Vision")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Computer Vision</Button>
+                                                <Button variant="text" onClick={() => handleDomainFilterChange("Large Language Models")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Large Language Model</Button>
+                                                <Button variant="text" onClick={() => handleDomainFilterChange("Language Processing")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Language Processing</Button>
+                                                <Button variant="text" onClick={() => handleDomainFilterChange("Regression Models")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Regression Models</Button>
                                             </div>
                                         </div>
                                         {/* Status Filter Buttons */}
                                         <div className="mb-5 text-left">
                                             <Button fullWidth disabled className="mb-5">Status</Button>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Completed</Button>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Running</Button>
-                                                <Button variant="text" className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Queued</Button>
+                                                <Button variant="text" onClick={() => handleStatusFilterChange()} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>All</Button>
+                                                <Button variant="text" onClick={() => handleStatusFilterChange("Completed")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Completed</Button>
+                                                <Button variant="text" onClick={() => handleStatusFilterChange("Running")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Running</Button>
+                                                <Button variant="text" onClick={() => handleStatusFilterChange("Queued")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Queued</Button>
                                             </div>
                                         </div>
                                     </CardBody>
@@ -175,9 +189,8 @@ const ModelsScreen = () => {
 
 
                     {/* Scrollable Content Section */}
-                    <div className="flex-grow ml-0 md:ml-[sidebarWidth] md:pr-10 overflow-auto h-full flex justify-center items-center">
-    <TransactionsTable/>
-</div>
+                    <div className="flex-grow ml-0 md:ml-[sidebarWidth] lg:mt-14 md:pr-10 overflow-auto h-full flex justify-start items-start">
+                    <ModelTable domainFilter={domainFilter} statusFilter={statusFilter} />                    </div>
 
 
                 </div>
