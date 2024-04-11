@@ -273,7 +273,7 @@ const LLMSScreen = () => {
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         placeholder="Search by category or model ID..."
-                                        className="w-full p-2 rounded border"
+                                        className="w-full p-2 text-gray-800 rounded border"
                                     />
                                 </div>
                                 <Card className="w-full bg-slate-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-none">
