@@ -1,7 +1,7 @@
-import { Button, Menu, MenuItem } from "@material-tailwind/react";
+import { Button } from "@material-tailwind/react";
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from "react";
-import { BsArrowLeft, BsArrowRight, BsChevronDown, BsChevronUp } from "react-icons/bs";
+import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { fetchTrainingJobsForUser } from "../auth/config/firebase-config";
 
 const TABLE_HEAD = ["Model Name", "Domain", "Model ID", "Dataset ID", "GPU Selected", "Job Status", "Action"];
@@ -103,37 +103,41 @@ export function ModelTable({ domainFilter, statusFilter }) {
                   <span className="text-blue-gray font-normal">{row.jobStatus}</span>
                 </td>
                 <td className="border-b border-blue-gray-50 p-4">
-                 <div className="relative">
-  <Button
-    size="sm"
-    onClick={() => handleActionClick(rowIndex)}
-    buttonType="link"
-    ripple="dark"
-    className="flex items-center"
-  >
-    <span>Action </span>
-    {activeRow === rowIndex ? <BsChevronUp className="ml-1" /> : <BsChevronDown className="ml-1" />}
-  </Button>
+                  <div className="relative">
+                    <Button
+                      size="sm"
+                      onClick={() => handleActionClick(rowIndex)}
+                      buttonType="link"
+                      ripple="dark"
+                      className="flex items-center"
+                    >
+                      <span>{row.jobStatus === 'Running' ? 'Stop Training' : 'Start Training'}</span>
+                      {/* {activeRow === rowIndex ? <BsChevronUp className="ml-1" /> : <BsChevronDown className="ml-1" />} */}
+                    </Button>
 
-  {activeRow === rowIndex && (
+                    {/* {activeRow === rowIndex && (
     <div className="absolute top-0 right-0 mt-10 bg-white dark:bg-green-800 shadow-md rounded-md z-50">
       <Menu
         placement="bottom-start"
         onClick={() => setActiveRow(null)}
       >
-        <MenuItem className="text-gray-800 dark:text-white" ripple="light">
-          Start Training
-        </MenuItem>
+        {row.jobStatus === 'Running' ? (
+          <MenuItem className="text-gray-800 dark:text-white" ripple="light">
+            Stop Training
+          </MenuItem>
+        ) : (
+          <MenuItem className="text-gray-800 dark:text-white" ripple="light">
+            Start Training
+          </MenuItem>
+        )}
         <MenuItem className="text-gray-800 dark:text-white" ripple="light">
           Delete Model
         </MenuItem>
-        <MenuItem className="text-gray-800 dark:text-white " ripple="light">
-          Stop Training
-        </MenuItem>
       </Menu>
     </div>
-  )}
-</div>
+  )} */}
+                  </div>
+
 
                 </td>
               </tr>

@@ -105,10 +105,9 @@ const LLMSScreen = () => {
     };
 
     // Define a separate function to handle the asynchronous operation
-    const handleTrainingJobSubmission = async () => {
+    const handleTrainingJobSubmission = async (newModelName) => {
         try {
             console.log("Submitting training job...");
-            console.log("Selected Model:", selectedModel);
             console.log("New Model Name:", newModelName);
             console.log("Huggingface Dataset ID:", huggingFaceDatasetID);
             console.log("Space Hardware:", spaceHardware);
@@ -119,7 +118,7 @@ const LLMSScreen = () => {
             const jobStatus = "Queued";
         
             await addTrainingJob(
-                selectedModel.name,
+                newModelName,
                 selectedModel.id, // Assuming you have an 'id' property in selectedModel
                 huggingFaceDatasetID,
                 spaceHardware,
@@ -128,8 +127,8 @@ const LLMSScreen = () => {
                 jobStatus // Pass domain and job status
             );
             console.log("Training job submitted successfully!");
-            navigate('/models');
             setShowSuccessAlert(true);
+            navigate('/models');
         } catch (error) {
             console.error("Failed to submit the model for training:", error);
         }
@@ -141,8 +140,10 @@ const LLMSScreen = () => {
         setSelectedModel(null);
         setSpaceHardware('');
         setLicense('MIT'); // Reset to default or intended value
-    };   
-
+    };
+    
+// Update the handleFineTune function to call the new function
+// Update the handleFineTune function to call the new function
 // Update the handleFineTune function to call the new function
 const handleFineTune = async (e) => {
     e.preventDefault();
@@ -166,8 +167,8 @@ const handleFineTune = async (e) => {
             const newValue = prevValue + 10;
             if (newValue >= 100) {
                 clearInterval(intervalRef.current);
-                setShowProgress(false);
-                handleTrainingJobSubmission();
+                handleTrainingJobSubmission(newModelName);
+                setShowProgress(false);// Pass newModelName as argument
                 return 100;
             }
             return newValue;
