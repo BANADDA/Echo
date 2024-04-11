@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { addTrainingJob, auth } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
 import hardwareOptions from "../../../data/hardwareOptions";
-import { LLMs_10B, LLMs_20B, LLMs_30B } from "../../../data/llms";
 import ModelCard from "../../../widgets/models";
 import CustomLoadingBar from "../../../widgets/progress";
 import CustomSelect from "../../../widgets/select";
@@ -13,9 +12,8 @@ import UserInfoPopup from "../../../widgets/userInfo";
 const LLMSScreen = () => {
     const [isDarkTheme, setIsDarkTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [selectedModel, setSelectedModel] = useState(null);
     const [newModelName, setNewModelName] = useState('');
-    const [license, setLicense] = useState('Public');
+    const [license, setLicense] = useState('');
     const [spaceHardware, setSpaceHardware] = useState('');
     const [huggingFaceDatasetID, setHuggingFaceDatasetID] = useState('');
     const [showProgress, setShowProgress] = useState(false);
@@ -27,6 +25,10 @@ const LLMSScreen = () => {
     const [datasetIDError, setDatasetIDError] = useState('');
     const [hardwareError, setHardwareError] = useState('');
     const [isProfileClicked, setIsProfileClicked] = useState(false);
+    // Initial States
+    const [groupedModels, setGroupedModels] = useState({});
+    const [selectedModel, setSelectedModel] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
 
@@ -112,11 +114,11 @@ const LLMSScreen = () => {
             console.log("Huggingface Dataset ID:", huggingFaceDatasetID);
             console.log("Space Hardware:", spaceHardware);
             console.log("License:", license);
-    
+
             // Add domain and job status values here
             const domain = "Large Language Models";
             const jobStatus = "Queued";
-        
+
             await addTrainingJob(
                 newModelName,
                 selectedModel.id, // Assuming you have an 'id' property in selectedModel
@@ -132,7 +134,7 @@ const LLMSScreen = () => {
         } catch (error) {
             console.error("Failed to submit the model for training:", error);
         }
-    
+
         // Clear the form fields after successful submission or in case of error
         setShowProgress(false);
         setNewModelName('');
@@ -141,98 +143,40 @@ const LLMSScreen = () => {
         setSpaceHardware('');
         setLicense('MIT'); // Reset to default or intended value
     };
-    
-// Update the handleFineTune function to call the new function
-// Update the handleFineTune function to call the new function
-// Update the handleFineTune function to call the new function
-const handleFineTune = async (e) => {
-    e.preventDefault();
 
-    // Perform validation
-    if (!validateForm()) {
-        return; // Stop form submission if validation fails
-    }
+    // Update the handleFineTune function to call the new function
+    // Update the handleFineTune function to call the new function
+    // Update the handleFineTune function to call the new function
+    const handleFineTune = async (e) => {
+        e.preventDefault();
 
-    // Clear any previous interval
-    if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-    }
+        // Perform validation
+        if (!validateForm()) {
+            return; // Stop form submission if validation fails
+        }
 
-    setShowProgress(true);
-    setProgressValue(0);
+        // Clear any previous interval
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
 
-    // Simulate progress
-    intervalRef.current = setInterval(() => {
-        setProgressValue((prevValue) => {
-            const newValue = prevValue + 10;
-            if (newValue >= 100) {
-                clearInterval(intervalRef.current);
-                handleTrainingJobSubmission(newModelName);
-                setShowProgress(false);// Pass newModelName as argument
-                return 100;
-            }
-            return newValue;
-        });
-    }, 300);
-};
+        setShowProgress(true);
+        setProgressValue(0);
 
-
-    // const handleFineTune = async (e) => {
-    //     e.preventDefault();
-
-    //     // Perform validation
-    //     if (!validateForm()) {
-    //         return; // Stop form submission if validation fails
-    //     }
-
-    //     // Clear any previous interval
-    //     if (intervalRef.current) {
-    //         clearInterval(intervalRef.current);
-    //     }
-
-    //     setShowProgress(true);
-    //     setProgressValue(0);
-
-    //     // Simulate progress
-    //     intervalRef.current = setInterval(() => {
-    //         setProgressValue(async (prevValue) => {
-    //             const newValue = prevValue + 10;
-    //             if (newValue >= 100) {
-    //                 clearInterval(intervalRef.current);
-    //                 setShowProgress(false);
-        
-    //                 // Show success alert
-    //                 setShowSuccessAlert(true);
-    //                 try {
-    //                     await addTrainingJob(
-    //                         selectedModel.name,
-    //                         newModelName,
-    //                         huggingFaceDatasetID,
-    //                         spaceHardware,
-    //                         license
-    //                     );
-    //                     navigate('/models');
-    //                     setShowSuccessAlert(false);
-    //                 } catch (error) {
-    //                     console.error("Failed to submit the model for training:", error);
-    //                     setShowProgress(false);
-    //                     setShowSuccessAlert(false);
-    //                 }
-        
-    //                 // Clear the form fields after successful submission
-    //                 setNewModelName('');
-    //                 setHuggingFaceDatasetID('');
-    //                 setSelectedModel(null);
-    //                 setSpaceHardware('');
-    //                 setLicense('MIT'); // Reset to default or intended value
-        
-    //                 return 100;
-    //             }
-    //             return newValue;
-    //         });
-    //     }, 300);
-        
-    // };
+        // Simulate progress
+        intervalRef.current = setInterval(() => {
+            setProgressValue((prevValue) => {
+                const newValue = prevValue + 10;
+                if (newValue >= 100) {
+                    clearInterval(intervalRef.current);
+                    handleTrainingJobSubmission(newModelName);
+                    setShowProgress(false);// Pass newModelName as argument
+                    return 100;
+                }
+                return newValue;
+            });
+        }, 300);
+    };
 
     const [user, setUser] = useState({
         isAuthenticated: false,
@@ -264,8 +208,33 @@ const handleFineTune = async (e) => {
         });
     }, []);
 
+    useEffect(() => {
+        fetch("https://huggingface.co/api/models")
+            .then(response => response.json())
+            .then(data => {
+                const groups = data.reduce((acc, model) => {
+                    const tag = model.pipeline_tag || 'unknown'; // Use 'unknown' as a fallback
+                    if (!acc[tag]) {
+                        acc[tag] = [];
+                    }
+                    acc[tag].push(model);
+                    return acc;
+                }, {});
+                setGroupedModels(groups);
+            })
+            .catch(error => console.error("Failed to fetch models:", error));
+    }, []);
 
-
+    // Function to filter models based on the search term
+    const getFilteredModelsByGroup = (models) => {
+        return models.filter(model => {
+            const searchQuery = searchTerm.toLowerCase();
+            // Check for match in pipeline_tag or modelId
+            const matchesTag = model?.pipeline_tag?.toLowerCase().includes(searchQuery);
+            const matchesModelId = model?.modelId?.toLowerCase().includes(searchQuery);
+            return searchTerm ? matchesTag || matchesModelId : true;
+        });
+    };
     return (
         <>
             <div className="flex flex-col h-auto">
@@ -287,6 +256,7 @@ const handleFineTune = async (e) => {
                         onProfileClick={toggleProfileWidget}
                     />
                 </div>
+
                 <div className="pt-[heightOfNavbar]">
                     <div className="h-full flex flex-col md:flex-row bg-slate-100 dark:bg-slate-900">
                         <div className="sticky top-0 w-full md:w-1/3 p-4 h-screen overflow-auto"
@@ -294,50 +264,41 @@ const handleFineTune = async (e) => {
                                 scrollbarWidth: 'none', /* For Firefox */
                                 '-ms-overflow-style': 'none', /* For Internet Explorer and Edge */
                                 'scrollbar-color': 'transparent transparent' /* For newer Firefox versions */
-                            }}>                            {/* Column 1: Large Card */}
+                            }}>
                             <div className="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg py-6 pl-0 ml-0">
                                 <h2 className="text-xl text-center font-bold py-5 pt-10 bg-black text-white">Select Language Model</h2>
-                                <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 145px)" }}>
-                                    <Card className="w-full bg-slate-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-none">
-                                        <CardBody>
-                                            {/* Display the cards for 10 billion parameters */}
-                                            <Typography variant="h6" color="blue-gray" className="font-bold mb-2">
-                                                {"< 10B"}
-                                            </Typography>
-                                            <div className="flex flex-wrap">
-                                                {LLMs_10B.map((card, index) => (
-                                                    <div key={index} className={`w-1/4 p-2 ${selectedModel === card ? 'bg-gray-100' : ''}`} onClick={() => handleModelSelect(card)}>
-                                                        <ModelCard imageUrl={card.imageUrl} text={card.name} />
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Display the cards for 20 billion parameters */}
-                                            <Typography variant="h6" color="blue-gray" className="font-bold mt-6 mb-2">
-                                                {"< 20B"}
-                                            </Typography>
-                                            <div className="flex flex-wrap">
-                                                {LLMs_20B.map((card, index) => (
-                                                    <div key={index} className={`w-1/4 p-2 ${selectedModel === card ? 'bg-gray-100 dark:text-black' : ''}`} onClick={() => handleModelSelect(card)}>
-                                                        <ModelCard imageUrl={card.imageUrl} text={card.name} />
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Display the cards for 30 billion parameters */}
-                                            <Typography variant="h6" color="blue-gray" className="font-bold mt-6 mb-2">
-                                                {"< 30B"}
-                                            </Typography>
-                                            <div className="flex flex-wrap">
-                                                {LLMs_30B.map((card, index) => (
-                                                    <div key={index} className={`w-1/4 p-2 ${selectedModel === card ? 'bg-gray-100' : ''}`} onClick={() => handleModelSelect(card)}>
-                                                        <ModelCard imageUrl={card.imageUrl} text={card.name} />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </CardBody>
-                                    </Card>
+                                <div className="overflow-auto p-5" style={{ maxHeight: "calc(100vh - 145px)" }}>
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Search by category or model ID..."
+                                        className="w-full p-2 rounded border"
+                                    />
                                 </div>
+                                <Card className="w-full bg-slate-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-none">
+                                    <CardBody>
+                                        {/* Dynamically display the groups */}
+                                        {Object.entries(groupedModels).map(([group, models]) => (
+                                            <div key={group}>
+                                                {/* Group title and filtered models */}
+                                                <Typography variant="h6" color="blue-gray" className="font-bold mb-2">
+                                                    {group}
+                                                </Typography>
+                                                <div className="flex flex-wrap">
+                                                {getFilteredModelsByGroup(models).map((model, index) => (
+    <div key={index} className={`w-1/4 p-2 ${selectedModel?.id === model.id ? 'bg-gray-100' : ''}`} onClick={() => setSelectedModel(model)}>
+        <ModelCard
+            imageUrl={`https://via.placeholder.com/150?text=${model.modelId}`} // This generates an image with the model ID as text
+            text={model.modelId}
+        />
+    </div>
+))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </CardBody>
+                                </Card>
                             </div>
                         </div>
                         <div className="w-full md:w-2/3 p-4">
@@ -355,12 +316,15 @@ const handleFineTune = async (e) => {
                                                 />
                                             </div>
                                             <div className="flex md:ml-4 flex-col">
-                                                <span className="text-xl font-semibold">Model Name: {selectedModel.name}</span>
-                                                <span><span className="font-bold text-sm">Parameters:</span> {selectedModel.parameters.toLocaleString()}</span>
-                                                <span><span className="font-bold text-sm">Base:</span> {selectedModel.base}</span>
-                                                <span><span className="font-bold text-sm">Training Data Size:</span> {selectedModel.trainingDataSize}</span>
-                                                <span><span className="font-bold text-sm">Main Application:</span> {selectedModel.mainApplication}</span>
-                                                <span><span className="font-bold text-sm">Unique Features:</span> {selectedModel.uniqueFeatures}</span>
+                                                {/* Display model details here */}
+                                                <div className="flex md:ml-4 flex-col">
+                                                    <span className="text-xl font-semibold">Model ID: {selectedModel.modelId}</span>
+                                                    <span><span className="font-bold text-sm">Library:</span> {selectedModel.library_name}</span>
+                                                    <span><span className="font-bold text-sm">Created At:</span> {selectedModel.createdAt}</span>
+                                                    <span><span className="font-bold text-sm">Use-Case:</span> {selectedModel.pipeline_tag}</span>
+                                                    <span><span className="font-bold text-sm">Downloads:</span> {selectedModel.downloads}</span>
+                                                    <span><span className="font-bold text-sm">Tags:</span> {selectedModel.tags?.join(', ')}</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="mt-8 w-full flex flex-col md:flex-row justify-center">
