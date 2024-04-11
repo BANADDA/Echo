@@ -1,6 +1,7 @@
 import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import ClimbingBoxLoader from "react-spinners/ClimbingBoxLoader";
 import { addTrainingJob, auth } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
 import hardwareOptions from "../../../data/hardwareOptions";
@@ -8,6 +9,13 @@ import ModelCard from "../../../widgets/models";
 import CustomLoadingBar from "../../../widgets/progress";
 import CustomSelect from "../../../widgets/select";
 import UserInfoPopup from "../../../widgets/userInfo";
+
+
+    const override = {
+        display: "block",
+        margin: "0 auto",
+        borderColor: "red",
+      };
 
 const LLMSScreen = () => {
     const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -29,10 +37,13 @@ const LLMSScreen = () => {
     const [groupedModels, setGroupedModels] = useState({});
     const [selectedModel, setSelectedModel] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
 
     const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
+      const [color, setColor] = useState("#ffffff");
+      
 
 
     const validateForm = () => {
@@ -209,6 +220,7 @@ const LLMSScreen = () => {
     }, []);
 
     useEffect(() => {
+        setIsLoading(true); // Start loading
         fetch("https://huggingface.co/api/models")
             .then(response => response.json())
             .then(data => {
@@ -221,8 +233,12 @@ const LLMSScreen = () => {
                     return acc;
                 }, {});
                 setGroupedModels(groups);
+                setIsLoading(false); // End loading
             })
-            .catch(error => console.error("Failed to fetch models:", error));
+            .catch(error => {
+                console.error("Failed to fetch models:", error);
+                setIsLoading(false); // End loading in case of error too
+            });
     }, []);
 
     // Function to filter models based on the search term
@@ -237,6 +253,16 @@ const LLMSScreen = () => {
     };
     return (
         <>
+        {isLoading && (
+            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="flex flex-col items-center"> {/* Flex container for column direction */}
+            {/* Reduce the size attribute for a smaller spinner */}
+            <ClimbingBoxLoader color="#00FFFF" loading={isLoading} cssOverride={override} size={15} />
+            <div className="text-white text-3xl mt-4">Loading...</div> {/* Margin top for spacing */}
+          </div>
+        </div>
+        )}
+
             <div className="flex flex-col h-auto">
                 {isProfileClicked && (
                     <UserInfoPopup
@@ -286,14 +312,14 @@ const LLMSScreen = () => {
                                                     {group}
                                                 </Typography>
                                                 <div className="flex flex-wrap">
-                                                {getFilteredModelsByGroup(models).map((model, index) => (
-    <div key={index} className={`w-1/4 p-2 ${selectedModel?.id === model.id ? 'bg-gray-100' : ''}`} onClick={() => setSelectedModel(model)}>
-        <ModelCard
-            imageUrl={`https://via.placeholder.com/150?text=${model.modelId}`} // This generates an image with the model ID as text
-            text={model.modelId}
-        />
-    </div>
-))}
+                                                    {getFilteredModelsByGroup(models).map((model, index) => (
+                                                        <div key={index} className={`w-1/4 p-2 ${selectedModel?.id === model.id ? 'bg-gray-100' : ''}`} onClick={() => setSelectedModel(model)}>
+                                                            <ModelCard
+                                                                imageUrl={`https://via.placeholder.com/150?text=${model.modelId}`} // This generates an image with the model ID as text
+                                                                text={model.modelId}
+                                                            />
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         ))}
