@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { menus } from "./data/menus";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
+import ModelsScreen from "./screens/pages/llms/models";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
 import UserInfoPopup from "./widgets/userInfo";
@@ -157,6 +158,7 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/llms" element={<LLMSScreen />} />
+        <Route path="/models" element={<ModelsScreen />}/>
       </Routes>
     </div>
   );
