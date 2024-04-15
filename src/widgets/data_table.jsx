@@ -54,7 +54,7 @@ export function ModelTable({ domainFilter, statusFilter }) {
   const startTrainingJob = async (docId, modelId, datasetId) => {
     console.log("Here startTrainingJob");
     try {
-      const response = await fetch('https://echo-server-q45y.onrender.com/start-training', {
+      const response = await fetch('http://localhost:3000/start-training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ docId, modelId, datasetId }), // Include the docId
