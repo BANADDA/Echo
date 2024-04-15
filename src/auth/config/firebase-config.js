@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { addDoc, collection, getDocs, getFirestore, query, where } from 'firebase/firestore'; // Import query and where
+import { addDoc, collection, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
 
 
 const firebaseConfig = {
@@ -20,34 +20,42 @@ const db = getFirestore(app);
 
 // Function to fetch all training jobs for the currently logged-in user
 async function fetchTrainingJobsForUser() {
-  const user = auth.currentUser;
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            const querySnapshot = await getDocs(query(collection(db, 'training_jobs'), where('userId', '==', user.uid)));
+            const trainingJobs = querySnapshot.docs.map(doc => ({
+                docId: doc.id, // Include the document ID here
+                ...doc.data()
+            }));
+            return trainingJobs;
+        } catch (error) {
+            console.error("Error fetching training jobs:", error);
+            return [];
+        }
+    } else {
+        console.log("No user is currently signed in.");
+        return [];
+    }
+}
 
-  if (user) {
-      try {
-          // Query the 'training_jobs' collection for documents where 'userId' matches the user's ID
-          const querySnapshot = await getDocs(query(collection(db, 'training_jobs'), where('userId', '==', user.uid)));
-
-          // Initialize an array to store the fetched training jobs
-          const trainingJobs = [];
-
-          // Loop through the query snapshot and push each document to the 'trainingJobs' array
-          querySnapshot.forEach((doc) => {
-              trainingJobs.push({
-                  id: doc.id,
-                  ...doc.data()
-              });
-          });
-
-          // Return the array of training jobs
-          return trainingJobs;
-      } catch (error) {
-          console.error("Error fetching training jobs:", error);
-          return []; // Return an empty array in case of an error
-      }
-  } else {
-      console.log("No user is currently signed in.");
-      return []; // Return an empty array if no user is signed in
-  }
+// Function to add a new training job metadata
+async function addTrainingJobMetadata(docId, modelId, datasetId, imageTag, computeRequirements) {
+    try {
+        const docRef = await addDoc(collection(db, 'trainingJobs'), {
+            modelId: modelId,
+            datasetId: datasetId,
+            imageTag: imageTag,
+            computeRequirements: computeRequirements,
+            trainingStatus: 'Pending', // Initial status
+            createdAt: new Date() // Client-side timestamp
+        });
+        console.log("Metadata document written with ID: ", docRef.id);
+        return docRef.id; // return the document ID
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        throw new Error("Failed to add training job metadata.");
+    }
 }
 
 
@@ -80,6 +88,18 @@ async function addTrainingJob(modelName, modelId, datasetId, gpu, licenseSelecte
 }
 
 
+// Inside firebase-config.js or a relevant module
+async function updateTrainingJobStatus(docId, status) {
+    try {
+      const docRef = doc(db, 'training_jobs', docId); // Use the docId directly
+      await updateDoc(docRef, { jobStatus: status });
+      console.log('Job status updated to', status);
+    } catch (error) {
+      console.error('Error updating job status:', error);
+    }
+  }
+  
+
 // Get a reference to the auth service
-export { addTrainingJob, auth, fetchTrainingJobsForUser };
+export { addTrainingJob, addTrainingJobMetadata, auth, fetchTrainingJobsForUser, updateTrainingJobStatus };
 

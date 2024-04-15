@@ -1,6 +1,6 @@
 import { Button } from "@material-tailwind/react";
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { fetchTrainingJobsForUser } from "../auth/config/firebase-config";
 
@@ -41,9 +41,46 @@ export function ModelTable({ domainFilter, statusFilter }) {
   };
 
   // Function to handle action click
-  const handleActionClick = (rowIndex) => {
-    setActiveRow(activeRow === rowIndex ? null : rowIndex);
+  const handleActionClick = (rowIndex, docId, modelId, datasetId) => {
+    console.log("Start traiing");
+    
+    // If the job status is not 'Running', start the training job
+    // if (trainingJobs[rowIndex].jobStatus !== 'Running') {
+      startTrainingJob(docId, modelId, datasetId); // Include the docId
+    // }
   };
+
+
+  const startTrainingJob = async (docId, modelId, datasetId) => {
+    console.log("Here startTrainingJob");
+    try {
+      const response = await fetch('https://echo-server-q45y.onrender.com/start-training', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ docId, modelId, datasetId }), // Include the docId
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      console.log(result.message);
+  
+      // Refresh the list of jobs to reflect the new status
+      refreshTrainingJobs();
+  
+    } catch (error) {
+      console.error("Failed to start the training job:", error);
+    }
+  };
+  
+  // Function to refresh the training jobs
+  const refreshTrainingJobs = async () => {
+    const fetchedJobs = await fetchTrainingJobsForUser();
+    setTrainingJobs(fetchedJobs);
+  };
+  
 
   return (
     <div className="h-auto mt-10 p-5 bg-gray-200 pt-2 dark:bg-gray-800 text-gray-800 dark:text-white w-full relative">
@@ -106,36 +143,13 @@ export function ModelTable({ domainFilter, statusFilter }) {
                   <div className="relative">
                     <Button
                       size="sm"
-                      onClick={() => handleActionClick(rowIndex)}
+                      onClick={() => handleActionClick(rowIndex, row.docId, row.modelId, row.datasetId)} // Include docId here
                       buttonType="link"
                       ripple="dark"
                       className="flex items-center"
                     >
                       <span>{row.jobStatus === 'Running' ? 'Stop Training' : 'Start Training'}</span>
-                      {/* {activeRow === rowIndex ? <BsChevronUp className="ml-1" /> : <BsChevronDown className="ml-1" />} */}
                     </Button>
-
-                    {/* {activeRow === rowIndex && (
-    <div className="absolute top-0 right-0 mt-10 bg-white dark:bg-green-800 shadow-md rounded-md z-50">
-      <Menu
-        placement="bottom-start"
-        onClick={() => setActiveRow(null)}
-      >
-        {row.jobStatus === 'Running' ? (
-          <MenuItem className="text-gray-800 dark:text-white" ripple="light">
-            Stop Training
-          </MenuItem>
-        ) : (
-          <MenuItem className="text-gray-800 dark:text-white" ripple="light">
-            Start Training
-          </MenuItem>
-        )}
-        <MenuItem className="text-gray-800 dark:text-white" ripple="light">
-          Delete Model
-        </MenuItem>
-      </Menu>
-    </div>
-  )} */}
                   </div>
 
 
