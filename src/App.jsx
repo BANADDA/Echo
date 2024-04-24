@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import AuthModal from "./auth/AuthModal";
 import { auth } from "./auth/config/firebase-config";
-import Alert from "./components/Alert";
 import MainContent from "./components/MainContent";
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
-import { menus } from "./data/menus";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
 import ModelsScreen from "./screens/pages/llms/models";
 import SignIn from "./screens/sign-in";
@@ -125,9 +122,9 @@ function App() {
       <Routes>
         <Route path="/" element={
           <>
-            {showAlert && (
+            {/* {showAlert && (
               <Alert currentTitle={currentTitle} onClose={() => setShowAlert(false)} />
-            )}
+            )} */}
             {showAuthModel && (
               <AuthModal onClose={() => setShowAuthModel(false)} />
             )}
@@ -148,8 +145,8 @@ function App() {
               onProfileClick={toggleProfileWidget} // Passing the function as a prop
             />
             <div className="flex flex-1">
-              <Sidebar isDarkTheme={isDarkTheme} Menus={menus} />
-              <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900">
+              {/* <Sidebar isDarkTheme={isDarkTheme} Menus={menus} /> */}
+              <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900 pt-20">
                 <MainContent handleExploreClick={handleExploreClick} />
               </div>
             </div>

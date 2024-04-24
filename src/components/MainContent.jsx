@@ -1,9 +1,38 @@
 import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { auth } from '../auth/config/firebase-config';
 import { dataCards } from '../data/cards';
 import CardComponent from "./CardComponent";
 
-const MainContent = ({ handleExploreClick }) => {
+const MainContent = ({ handleExploreClick }) => {  
+   const [user, setUser] = useState({
+  isAuthenticated: false,
+  name: '',
+  email: '',
+  photoURL: ''
+});
+
+useEffect(() => {
+  auth.onAuthStateChanged((user) => {
+      if (user) {
+          setUser({
+              isAuthenticated: true,
+              name: user.displayName || 'No Name',
+              email: user.email,
+              photoURL: user.photoURL || 'path/to/default/image.png'
+          });
+      } else {
+          setUser({
+              isAuthenticated: false,
+              name: '',
+              email: '',
+              photoURL: ''
+          });
+      }
+  });
+}, []);
   return (
+    <>
     <div className="flex-1 px-8 bg-slate-100 dark:bg-slate-900">
       <div className="flex flex-col justify-between h-full rounded-lg bg-white dark:bg-slate-700 p-6">
         <div className="pl-10">
@@ -28,11 +57,15 @@ const MainContent = ({ handleExploreClick }) => {
       <div className="flex flex-wrap gap-4 pt-14">
         {dataCards.map((card, index) => (
           <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
-            <CardComponent card={card} onExplore={() => handleExploreClick(card.title, card.link)} /> {/* Pass title and link to handleExploreClick */}
+            <CardComponent
+              card={card}
+              onExplore={handleExploreClick}
+              isComingSoon={card.title !== "Large Language Models"} />
           </div>
         ))}
       </div>
-    </div>
+
+    </div></>
   );
 };
 

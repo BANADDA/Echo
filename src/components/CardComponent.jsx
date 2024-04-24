@@ -1,15 +1,16 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, Card, CardBody, CardFooter, Typography } from "@material-tailwind/react";
 import PropTypes from 'prop-types';
 
-const CardComponent = ({ card, onExplore }) => {
+const CardComponent = ({ card, onExplore, isComingSoon }) => {
   return (
-    <Card className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white overflow-hidden transform transition duration-500 ease-in-out hover:scale-105">
+    <Card className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white overflow-hidden transform transition duration-500 ease-in-out hover:scale-105 relative">
+      {isComingSoon && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <Typography variant="h5" className="text-white">
+            Coming Soon...
+          </Typography>
+        </div>
+      )}
       <img
         src={card.imgSrc}
         alt={card.title}
@@ -30,7 +31,7 @@ const CardComponent = ({ card, onExplore }) => {
         </div>
       </CardBody>
       <CardFooter className="pt-0">
-        <Button onClick={() => onExplore(card.title)} size="sm" variant="text" className="flex items-center gap-2 text-gray-900 dark:text-white relative group">
+        <Button onClick={() => onExplore(card.title, card.link)} size="sm" variant="text" className="flex items-center gap-2 text-gray-900 dark:text-white relative group">
           Explore
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -52,14 +53,15 @@ const CardComponent = ({ card, onExplore }) => {
   );
 };
 
-// Define PropTypes for type checking
 CardComponent.propTypes = {
   card: PropTypes.shape({
     imgSrc: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     items: PropTypes.arrayOf(PropTypes.string).isRequired,
+    link: PropTypes.string,
   }).isRequired,
   onExplore: PropTypes.func.isRequired,
+  isComingSoon: PropTypes.bool,
 };
 
 export default CardComponent;

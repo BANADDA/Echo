@@ -17,16 +17,16 @@ const ModelsScreen = () => {
     const [isProfileClicked, setIsProfileClicked] = useState(false);
 
     const [domainFilter, setDomainFilter] = useState(null);
-const [statusFilter, setStatusFilter] = useState(null);
+    const [statusFilter, setStatusFilter] = useState(null);
 
-// Handlers for filter buttons
-const handleDomainFilterChange = (domain) => {
-    setDomainFilter(domain === domainFilter ? null : domain); // Toggle filter on/off
-};
+    // Handlers for filter buttons
+    const handleDomainFilterChange = (domain) => {
+        setDomainFilter(domain === domainFilter ? null : domain); // Toggle filter on/off
+    };
 
-const handleStatusFilterChange = (status) => {
-    setStatusFilter(status === statusFilter ? null : status); // Toggle filter on/off
-};
+    const handleStatusFilterChange = (status) => {
+        setStatusFilter(status === statusFilter ? null : status); // Toggle filter on/off
+    };
 
     const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
     const [navbarHeight, setNavbarHeight] = useState(0);
@@ -163,7 +163,7 @@ const handleStatusFilterChange = (status) => {
                                         <div className="mb-5 text-left">
                                             <Button fullWidth disabled className="mb-5">Domain</Button>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                               <Button variant="text" onClick={() => handleDomainFilterChange()} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>All</Button>
+                                                <Button variant="text" onClick={() => handleDomainFilterChange()} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>All</Button>
                                                 <Button variant="text" onClick={() => handleDomainFilterChange("Computer Vision")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Computer Vision</Button>
                                                 <Button variant="text" onClick={() => handleDomainFilterChange("Large Language Models")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Large Language Model</Button>
                                                 <Button variant="text" onClick={() => handleDomainFilterChange("Language Processing")} className="mb-1 px-5 text-gray-800 dark:text-white" style={{ minWidth: '120px', fontWeight: '600' }}>Language Processing</Button>
@@ -190,7 +190,7 @@ const handleStatusFilterChange = (status) => {
 
                     {/* Scrollable Content Section */}
                     <div className="flex-grow ml-0 md:ml-[sidebarWidth] lg:mt-14 md:pr-10 overflow-auto h-full flex justify-start items-start">
-                    <ModelTable domainFilter={domainFilter} statusFilter={statusFilter} />                    </div>
+                        <ModelTable domainFilter={domainFilter} statusFilter={statusFilter} />                    </div>
 
 
                 </div>
