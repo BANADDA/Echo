@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { submitFineTuningJob } from '../auth/config/firebase-config';
+import { auth } from '../auth/config/firebase-config';
 
 const NewJobModal = ({ isOpen, closePopup, onJobSubmit }) => {
   const [baseModel, setBaseModel] = useState('');
@@ -20,8 +20,9 @@ const NewJobModal = ({ isOpen, closePopup, onJobSubmit }) => {
   const [fineTuningType, setFineTuningType] = useState('text-generation'); // Default value can be the first option
   const [expectedOutcome, setExpectedOutcome] = useState('');
   const [validationFile, setValidationFile] = useState(null);
+  const user = auth.currentUser;
 
-
+  const API_BASE_URL = 'http://localhost:3000';
 
   const handleCriteriaChange = (index, event) => {
     const newCriteria = [...validationCriteria];
@@ -74,65 +75,50 @@ const NewJobModal = ({ isOpen, closePopup, onJobSubmit }) => {
       return;
     }
   
-    const jobData = {
-      baseModel,
-      trainingDataOption,
-      validationDataOption,
-      suffix,
-      seed,
-      huggingFaceId,
-      validationCriteria,
-      batchSize: batchSizeAuto ? 'Auto' : batchSize,
-      learningRateMultiplier: learningRateAuto ? 'Auto' : learningRateMultiplier,
-      numberOfEpochs: numberOfEpochsAuto ? 'Auto' : numberOfEpochs,
-      fineTuningType,
-      expectedOutcome,
-    };
+    const formData = new FormData();
+    formData.append('userId', user.uid);
+    formData.append('baseModel', baseModel);
+    formData.append('trainingDataOption', trainingDataOption);
+    formData.append('validationDataOption', validationDataOption);
+    formData.append('suffix', suffix);
+    formData.append('seed', seed);
+    formData.append('huggingFaceId', huggingFaceId);
+    formData.append('validationCriteria', validationCriteria);
+    formData.append('batchSize', batchSize);
+    formData.append('batchSizeAuto', batchSizeAuto);
+    formData.append('learningRateMultiplier', learningRateMultiplier);
+    formData.append('learningRateAuto', learningRateAuto);
+    formData.append('numberOfEpochs', numberOfEpochs);
+    formData.append('numberOfEpochsAuto', numberOfEpochsAuto);
+    formData.append('fineTuningType', fineTuningType);
+    formData.append('expectedOutcome', expectedOutcome);
+    if (uploadedFile) {
+      formData.append('trainingFile', uploadedFile);
+    }
+    if (validationFile) {
+      formData.append('validationFile', validationFile);
+    }
+
+    console.log("Upload data: ", formData);
   
     try {
-      // Log uploadedFile and validationFile data
-      console.log('Uploaded File:', uploadedFile);
-      console.log('Validation File:', validationFile);
+      const response = await fetch(`${API_BASE_URL}/submit-training`, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
   
-      // Call the function to submit job data and handle file uploads
-      if (trainingDataOption === 'uploadNew' && validationDataOption === 'uploadNew') {
-        await submitFineTuningJob(jobData, uploadedFile, validationFile);
-    } else if (trainingDataOption === 'uploadNew') {
-        await submitFineTuningJob(jobData, uploadedFile);
-    } else if (validationDataOption === 'uploadNew') {
-        await submitFineTuningJob(jobData, null, validationFile);
-    } else {
-        await submitFineTuningJob(jobData);
-    }    
-  
-      console.log('Job submitted successfully');
-  
-      // Reset all state values to their initial state
-      setBaseModel('');
-      setTrainingDataOption('selectExisting');
-      setValidationDataOption('none');
-      setSuffix('');
-      setSeed('Random');
-      setUploadedFile(null);
-      setHuggingFaceId('');
-      setValidationCriteria(['']);
-      setBatchSize(0);
-      setBatchSizeAuto(true);
-      setLearningRateMultiplier(0);
-      setLearningRateAuto(true);
-      setNumberOfEpochs(0);
-      setNumberOfEpochsAuto(true);
-      setFineTuningType('text-generation');
-      setExpectedOutcome('');
-      setValidationFile(null);
-  
-      onJobSubmit();
-      closePopup();
+      if (response.ok) {
+        console.log('Job submitted successfully', result);
+        onJobSubmit();
+        closePopup();
+      } else {
+        throw new Error(result.error || 'Failed to submit job');
+      }
     } catch (error) {
       console.error('Error submitting the job:', error);
     }
-  };
-  
+  };  
 
   if (!isOpen) return null;
 

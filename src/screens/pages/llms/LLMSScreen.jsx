@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { addTrainingJob, auth, userJobs } from "../../../auth/config/firebase-config";
 import Navbar from "../../../components/Navbar";
+import ModelTrainingDetails from "../../../widgets/ModelTrainingDetails";
 import NewJobModal from "../../../widgets/NewJobModal";
 import FineTuningJobContainer from "../../../widgets/job_container";
 import CustomLoadingBar from "../../../widgets/progress";
@@ -43,6 +44,13 @@ const LLMSScreen = () => {
     const [showNewJobModal, setShowNewJobModal] = useState(false);
     const [selectedJob, setSelectedJob] = useState(null);
     const [refresh, setRefresh] = useState(false);
+    const [currentFilter, setCurrentFilter] = useState('All');
+
+    const handleButtonClick = (buttonName) => {
+        setActiveButton(buttonName); // This already sets the active button style
+        setCurrentFilter(buttonName); // Add this line to set the current filter
+    };
+
 
     const [user, setUser] = useState({
         isAuthenticated: false,
@@ -84,7 +92,7 @@ const LLMSScreen = () => {
         }
         setShowProgress(false); // Hide the loading indicator
     };
-    
+
 
     // Fetch models from Hugging Face API
     useEffect(() => {
@@ -162,11 +170,6 @@ const LLMSScreen = () => {
 
     // Function to select a job
     const selectJob = (job) => setSelectedJob(job);
-
-    // Function to handle button clicks
-    const handleButtonClick = (buttonName) => {
-        setActiveButton(buttonName);
-    };
 
     // Function to handle file change
     const handleFileChange = (event) => {
@@ -384,7 +387,7 @@ const LLMSScreen = () => {
                                         All
                                     </Button>
                                     <Button
-                                        className={`p-3 rounded-none ${activeButton === "Running" ? "bg-green-500" : ""}`}
+                                        className={`p-3 rounded-none ${activeButton === "pending" ? "bg-green-500" : ""}`}
                                         onClick={() => handleButtonClick("pending")}
                                     >
                                         Pending
@@ -402,12 +405,14 @@ const LLMSScreen = () => {
                                         Failed
                                     </Button>
                                 </ButtonGroup>
+
                                 <Button
-                                    className="p-3 bg-green-800 hover:bg-green-600 text-white"
+                                    className=" bg-green-800 hover:bg-green-600 text-white"
                                     onClick={() => setShowNewJobModal(true)}
                                 >
                                     + New Job
                                 </Button>
+
                             </div>
                         </div>
 
@@ -415,9 +420,48 @@ const LLMSScreen = () => {
                         <div className="h-full mt-5 mb-16 grid grid-cols-2 gap-5 px-10 relative">
                             {/* First Column - Scrollable */}
                             <div className="overflow-y-auto">
-                                <div className="bg-white dark:bg-gray-200 p-5">
+
+                                <form className="flex items-center max-w-sm mx-auto">
+                                    <label for="simple-search" className="sr-only">Search</label>
+                                    <div className="relative w-full">
+                                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+                                            </svg>
+                                        </div>
+                                        <input onChange={(e) => setSearchTerm(e.target.value)} type="text" id="simple-search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search branch name..." required />
+                                    </div>
+                                    <button type="submit" onClick={(e) => setSearchTerm(e.target.value)} className="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                        <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                        </svg>
+                                        <span className="sr-only">Search</span>
+                                    </button>
+                                </form>
+
+                                {/* <div className="flex justify-between px-2 m-2 items-center">
+                                    <input
+                                        type="text"
+                                        placeholder="Search by model name..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="input input-bordered input-sm w-full max-w-xs"
+                                    /></div> */}
+                                <div className="bg-white dark:bg-gray-800 p-5">
                                     {fineTuningJobs.length > 0 ? (
-                                        chunkArray([...fineTuningJobs], 2).map((jobPair, index) => (
+                                        chunkArray(
+                                            fineTuningJobs.filter(job => {
+                                                // Filter by search term if provided
+                                                if (searchTerm && !job.suffix.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                                    return false;
+                                                }
+                                                // Then filter by status
+                                                if (currentFilter === 'All') {
+                                                    return true;
+                                                }
+                                                return job.status && job.status.toLowerCase() === currentFilter.toLowerCase();
+                                            }), 2
+                                        ).map((jobPair, index) => (
                                             <div key={index} className="grid grid-cols-2 gap-10">
                                                 {jobPair.map((job) => (
                                                     <FineTuningJobContainer
@@ -435,7 +479,7 @@ const LLMSScreen = () => {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="flex-grow bg-white dark:bg-gray-300 shadow rounded-lg p-4 flex flex-col justify-center items-center">
+                                        <div className="flex-grow bg-white dark:bg-gray-800 shadow rounded-lg p-4 flex flex-col justify-center items-center">
                                             <Typography variant="h6" color="gray" className="mb-2 dark:text-white">
                                                 No fine-tuning jobs found
                                             </Typography>
@@ -454,23 +498,18 @@ const LLMSScreen = () => {
                                 </div>
                             </div>
 
+
                             {/* Second Column - Fixed */}
-                            <div className="bg-white dark:bg-gray-300 shadow rounded-lg p-4 sticky top-0">
+                            <div className="bg-white dark:bg-gray-800 dark:text-white shadow rounded-lg p-4 sticky top-0">
                                 {selectedJob ? (
-                                    <div>
-                                        <h3>Selected Job Details</h3>
-                                        <p>Model Name: {selectedJob.suffix}</p>
-                                        <p>Model ID: {selectedJob.modelId}</p>
-                                        {/* <p>Creation Date: {format(new Date(selectedModel.creationDate), 'MMM d, yyyy')}</p> */}
-                                        <p>Job Type: {selectedJob.jobType}</p>
-                                        <p>Status: {selectedJob.status}</p>
-                                    </div>
+                                    <ModelTrainingDetails job={selectedJob} />
                                 ) : (
                                     <Typography variant="body2" color="gray" className="h-full flex justify-center items-center dark:text-white">
                                         Select a training job to view details.
                                     </Typography>
                                 )}
                             </div>
+
                         </div>
                     </div>
 
