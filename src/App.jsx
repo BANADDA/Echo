@@ -6,6 +6,7 @@ import MainContent from "./components/MainContent";
 import Navbar from "./components/Navbar";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
 import ModelsScreen from "./screens/pages/llms/models";
+import PaymentMenu from "./screens/pages/payment/menu";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
 import UserInfoPopup from "./widgets/userInfo";
@@ -156,6 +157,7 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/llms" element={<LLMSScreen />} />
         <Route path="/models" element={<ModelsScreen />}/>
+        <Route path="/payment" element={<PaymentMenu />} />
       </Routes>
     </div>
   );
