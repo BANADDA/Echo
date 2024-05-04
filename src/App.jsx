@@ -7,11 +7,58 @@ import Navbar from "./components/Navbar";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
 import ModelsScreen from "./screens/pages/llms/models";
 import PaymentMenu from "./screens/pages/payment/menu";
+import TrainingJobs from "./screens/pages/trainer/jobs";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
 import UserInfoPopup from "./widgets/userInfo";
 
+// Function to fetch models from Hugging Face
+const fetchModelDetails = async (modelId) => {
+  try {
+    const response = await fetch(`https://huggingface.co/api/models/${modelId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch details for model ${modelId}`);
+    }
+    const modelDetails = await response.json();
+    const numParameters = modelDetails.safetensors?.parameters?.F32;
+
+    return {
+      modelId: modelId,
+      numParameters: numParameters || "N/A" // Provide a default value if parameters are not available
+    };
+  } catch (error) {
+    console.error(`Error fetching model details for ${modelId}:`, error);
+    return { modelId: modelId, numParameters: "Error fetching details" }; // Return default error state
+  }
+};
+
+const fetchModelsFromHuggingFace = async () => {
+  try {
+    const response = await fetch("https://huggingface.co/api/models");
+    if (!response.ok) {
+      throw new Error("Failed to fetch models");
+    }
+    const models = await response.json();
+
+    const detailsPromises = models.map(model => fetchModelDetails(model.modelId));
+    const results = await Promise.allSettled(detailsPromises);
+    const modelsDetails = results.map(result => result.status === "fulfilled" ? result.value : null).filter(detail => detail !== null);
+
+    if (modelsDetails.length > 0) {
+      localStorage.setItem("hfModelsDetails", JSON.stringify(modelsDetails));
+    } else {
+      console.log("No models with parameters were found to save.");
+    }
+  } catch (error) {
+    console.error("Error fetching models from Hugging Face:", error);
+  }
+};
+
 function App() {
+  useEffect(() => {
+    // Call the function to fetch models when the component mounts
+    fetchModelsFromHuggingFace();
+  }, []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -156,6 +203,7 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/llms" element={<LLMSScreen />} />
+        <Route path="/jobs" element={<TrainingJobs />}/>
         <Route path="/models" element={<ModelsScreen />}/>
         <Route path="/payment" element={<PaymentMenu />} />
       </Routes>

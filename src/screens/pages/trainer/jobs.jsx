@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { addTrainingJob, auth, userJobs } from "../../../auth/config/firebase-config";
-import DashboardContent from '../../../widgets/DashboardContent';
 import Navigator from "../../../widgets/NavComponent";
+import NewJobModal from "../../../widgets/NewJobModal";
 import Sidebar from "../../../widgets/sidebar";
 import UserInfoPopup from "../../../widgets/userInfo";
 
-const LLMSScreen = () => {
+const TrainingJobs = () => {
     // State variables and hooks
     const [isDarkTheme, setIsDarkTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -429,27 +429,11 @@ const LLMSScreen = () => {
                         onProfileClick={toggleProfileWidget}
                     />
                     {/* Main Content */}
-                    <DashboardContent
-                        showNewJobModal={showNewJobModal}
-                        setShowNewJobModal={setShowNewJobModal}
-                        filteredJobs={filteredJobs}
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        handleDateFilterChange={handleDateFilterChange}
-                        dateFilter={dateFilter}
-                        currentJobs={currentJobs}
-                        getStatusColor={getStatusColor}
-                        currentPage={currentPage}
-                        jobsPerPage={jobsPerPage}
-                        totalPages={totalPages}
-                        goToPreviousPage={goToPreviousPage}
-                        goToNextPage={goToNextPage}
-                        changePage={changePage}
-                    />
+                    <NewJobModal />
                 </div>
             </div>
         </>
     );
 };
 
-export default LLMSScreen;
+export default TrainingJobs;
