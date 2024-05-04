@@ -128,6 +128,27 @@ const NewJobModal = () => {
     toggleModelSelectModal();
   };
 
+  const resetForm = () => {
+    setTrainingDataOption('selectExisting');
+    setValidationDataOption('none');
+    setSuffix('');
+    setSeed('Random');
+    setUploadedFile(null);
+    setHuggingFaceId('');
+    setValidationCriteria(['']);
+    setBatchSize(0);
+    setBatchSizeAuto(true);
+    setLearningRateMultiplier(0);
+    setLearningRateAuto(true);
+    setNumberOfEpochs(0);
+    setNumberOfEpochsAuto(true);
+    setFineTuningType('text-generation');
+    setExpectedOutcome('');
+    setValidationFile(null);
+    setBaseModel('');
+    setModelParams('');
+};
+
   const handleSubmit = async () => {
     setShowProgress(true);
     console.log("Submitting training job...");
@@ -176,7 +197,8 @@ const NewJobModal = () => {
         console.log('Job submitted successfully', result);
         setShowSuccessAlert(true);
         setTimeout(() => setShowSuccessAlert(false), 2000);
-        navigate('/llms')
+        resetForm();  
+        // navigate('/llms')
       } else {
         throw new Error(result.error || 'Failed to submit job');
       }
