@@ -30,6 +30,7 @@ const NewJobModal = () => {
   const [showProgress, setShowProgress] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     // Fetch models from ModelService when the modal is about to be shown
@@ -107,20 +108,6 @@ const NewJobModal = () => {
     setHuggingFaceId(event.target.value);
   };
 
-  // Define a function to check if all required form fields are filled
-  const isFormValid = () => {
-    // Add your validation logic here
-    // For simplicity, checking if baseModel and huggingFaceId are not empty strings
-    // In a real-world scenario, you would check all required fields
-    return (
-      baseModel.trim() !== '' &&
-      huggingFaceId.trim() !== '' &&
-      // ... other conditions for different fields ...
-      (uploadedFile || trainingDataOption !== 'uploadNew') // Ensure a file is uploaded if the option requires it
-      // Add more conditions based on your requirements
-    );
-  };
-
   const handleModelSelection = (modelId, params) => {
     console.log("Model Id and params: ", modelId, params);
     setBaseModel(modelId);
@@ -149,9 +136,21 @@ const NewJobModal = () => {
     setModelParams('');
 };
 
+const isFormValid = () => {
+  let errors = [];
+  if (baseModel.trim() === '') {
+      errors.push('Base model ID is required.');
+  }
+  if (huggingFaceId.trim() === '') {
+      errors.push('Hugging Face ID is required.');
+  }}
+
   const handleSubmit = async () => {
-    setShowProgress(true);
     console.log("Submitting training job...");
+    if (!isFormValid()) {
+      return;
+  }
+    setShowProgress(true);
     // if (baseModel.trim() === '' || !modelParams) {
     //   console.error('Model ID or parameter size is missing');
     //   return;
@@ -215,6 +214,22 @@ const NewJobModal = () => {
 
   return (
     <div className="flex flex-col ml-64 bg-white dark:bg-slate-900 p-6 mt-16">
+    {
+    formError && (
+        <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
+            <div className="w-full max-w-md mx-auto">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong className="font-bold">Error!</strong>
+                    <span className="block sm:inline">{formError}</span>
+                    <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setFormError('')}>
+                        <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 1 1-1.697 1.697l-2.651-2.65-2.651 2.65a1.2 1.2 0 1 1-1.697-1.697l2.651-2.651-2.651-2.651a1.2 1.2 0 1 1 1.697-1.697l2.651 2.651 2.651-2.651a1.2 1.2 0 1 1 1.697 1.697l-2.651 2.651 2.651 2.651z"/></svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+    )
+}
+
     {
     showProgress && (
         <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
@@ -626,7 +641,7 @@ const NewJobModal = () => {
           type="button"
           className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow-lg"
           onClick={handleSubmit}
-          disabled={!isFormValid()}
+          // disabled={!isFormValid()}
         >
           Submit
         </button>
