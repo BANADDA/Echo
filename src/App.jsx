@@ -56,10 +56,6 @@ const fetchModelsFromHuggingFace = async () => {
 };
 
 function App() {
-  useEffect(() => {
-    // Call the function to fetch models when the component mounts
-    fetchModelsFromHuggingFace();
-  }, []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -67,9 +63,27 @@ function App() {
   const [showAuthModel, setShowAuthModel] = useState(false);
   const [currentTitle, setCurrentTitle] = useState('');
   const [isProfileClicked, setIsProfileClicked] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleStartLoading = () => setIsLoading(true);
+    const handleStopLoading = () => setIsLoading(false);
+
+    handleStartLoading();
+    // Simulating fetch/loading operation
+    const timer = setTimeout(handleStopLoading, 500); // Simulate loading time
+
+    // Cleanup function to clear timer when component unmounts or location changes
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  useEffect(() => {
+    // Call the function to fetch models when the component mounts
+    fetchModelsFromHuggingFace().then(() => setIsLoading(false)); // Stop loading after fetching models
+  }, []);
 
   const toggleProfileWidget = () => setIsProfileClicked(!isProfileClicked);
-
 
   // Listen for changes in the authentication state
   useEffect(() => {
@@ -107,9 +121,7 @@ function App() {
 
   const themeCheck = () => {
     const userTheme = localStorage.getItem("theme");
-    const systemTheme = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
     if (localStorage.theme === "dark" || (!userTheme && systemTheme)) {
       document.documentElement.classList.add("dark");
       setIsDarkTheme(true);
@@ -165,64 +177,47 @@ function App() {
       }
     });
   }, []);
-  const [isLoading, setIsLoading] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const handleStartLoading = () => setIsLoading(true);
-    const handleStopLoading = () => setIsLoading(false);
-
-    handleStartLoading();
-    // Simulating fetch/loading operation
-    const timer = setTimeout(handleStopLoading, 500); // Simulate loading time
-
-    // Cleanup function to clear timer when component unmounts or location changes
-    return () => clearTimeout(timer);
-  }, [location]); 
 
   return (
     <div className="flex flex-col">
-    {isLoading && <LoadingScreen />} 
-      <Routes>
-        <Route path="/" element={
-          <>
-            {/* {showAlert && (
-              <Alert currentTitle={currentTitle} onClose={() => setShowAlert(false)} />
-            )} */}
-            {showAuthModel && (
-              <AuthModal onClose={() => setShowAuthModel(false)} />
-            )}
-            {isProfileClicked && (
-              <UserInfoPopup
-                onClose={() => setIsProfileClicked(false)}
-                userName={user.name}
-                userEmail={user.email}
-                userPhotoURL={user.photoURL}
+      {isLoading && <LoadingScreen />} 
+      {!isLoading && (
+        <Routes>
+          <Route path="/" element={
+            <>
+              {showAuthModel && (
+                <AuthModal onClose={() => setShowAuthModel(false)} />
+              )}
+              {isProfileClicked && (
+                <UserInfoPopup
+                  onClose={() => setIsProfileClicked(false)}
+                  userName={user.name}
+                  userEmail={user.email}
+                  userPhotoURL={user.photoURL}
+                />
+              )}
+              <Navbar
+                isDarkTheme={isDarkTheme}
+                themeSwitch={themeSwitch}
+                toggleMobileMenu={toggleMobileMenu}
+                isMobileMenuOpen={isMobileMenuOpen}
+                onProfileClick={toggleProfileWidget} // Passing the function as a prop
               />
-            )}
-
-            <Navbar
-              isDarkTheme={isDarkTheme}
-              themeSwitch={themeSwitch}
-              toggleMobileMenu={toggleMobileMenu}
-              isMobileMenuOpen={isMobileMenuOpen}
-              onProfileClick={toggleProfileWidget} // Passing the function as a prop
-            />
-            <div className="flex flex-1">
-              {/* <Sidebar isDarkTheme={isDarkTheme} Menus={menus} /> */}
-              <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900 pt-20">
-                <MainContent handleExploreClick={handleExploreClick} />
+              <div className="flex flex-1">
+                <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900 pt-20">
+                  <MainContent handleExploreClick={handleExploreClick} />
+                </div>
               </div>
-            </div>
-          </>
-        } />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/llms" element={<LLMSScreen />} />
-        <Route path="/jobs" element={<TrainingJobs />}/>
-        <Route path="/models" element={<ModelsScreen />}/>
-        <Route path="/payment" element={<PaymentMenu />} />
-      </Routes>
+            </>
+          } />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/llms" element={<LLMSScreen />} />
+          <Route path="/jobs" element={<TrainingJobs />} />
+          <Route path="/models" element={<ModelsScreen />} />
+          <Route path="/payment" element={<PaymentMenu />} />
+        </Routes>
+      )}
     </div>
   );
 }
