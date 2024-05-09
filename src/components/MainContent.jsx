@@ -37,9 +37,9 @@ useEffect(() => {
       <div className="flex flex-col justify-between h-full rounded-lg bg-white dark:bg-slate-700 p-6">
         <div className="pl-10">
           <div className="text-left">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Echo</h2>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Jervis...</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4 font-medium">
-              Echo is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Echo, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
+              Jervis is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Echo, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
               Learn how Echo integrates seamlessly with your workflows to not only enhance model performance but also contribute towards a sustainable future in AI.
             </p>
           </div>

@@ -104,9 +104,9 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <a href='/' className="flex flex-shrink-0 items-center">
               <img
-                className="h-8 w-auto"
+                className="h-12 w-auto"
                 src="./static/img/echo_1.png"
-                alt="Echo"
+                alt="Jervisecho"
               />
             </a>
             {authCheckCompleted && !isAuthenticated ? (
