@@ -134,22 +134,23 @@ const NewJobModal = () => {
     setValidationFile(null);
     setBaseModel('');
     setModelParams('');
-};
+  };
 
-const isFormValid = () => {
-  let errors = [];
-  if (baseModel.trim() === '') {
+  const isFormValid = () => {
+    let errors = [];
+    if (baseModel.trim() === '') {
       errors.push('Base model ID is required.');
-  }
-  if (huggingFaceId.trim() === '') {
+    }
+    if (huggingFaceId.trim() === '') {
       errors.push('Hugging Face ID is required.');
-  }}
+    }
+  }
 
   const handleSubmit = async () => {
     console.log("Submitting training job...");
-    if (!isFormValid()) {
-      return;
-  }
+    // if (!isFormValid()) {
+    //   return;
+    // }
     setShowProgress(true);
     // if (baseModel.trim() === '' || !modelParams) {
     //   console.error('Model ID or parameter size is missing');
@@ -196,7 +197,7 @@ const isFormValid = () => {
         console.log('Job submitted successfully', result);
         setShowSuccessAlert(true);
         setTimeout(() => setShowSuccessAlert(false), 2000);
-        resetForm();  
+        resetForm();
         // navigate('/llms')
       } else {
         throw new Error(result.error || 'Failed to submit job');
@@ -205,73 +206,73 @@ const isFormValid = () => {
       console.error('Error submitting the job:', error);
       setShowError(true);
       setTimeout(() => setShowError(false), 2000);
-    }finally {
+    } finally {
       setShowProgress(false);
-  }
+    }
   };
 
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col ml-64 bg-white dark:bg-slate-900 p-6 mt-16">
-    {
-    formError && (
-        <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
+      {
+        formError && (
+          <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
             <div className="w-full max-w-md mx-auto">
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong className="font-bold">Error!</strong>
-                    <span className="block sm:inline">{formError}</span>
-                    <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setFormError('')}>
-                        <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 1 1-1.697 1.697l-2.651-2.65-2.651 2.65a1.2 1.2 0 1 1-1.697-1.697l2.651-2.651-2.651-2.651a1.2 1.2 0 1 1 1.697-1.697l2.651 2.651 2.651-2.651a1.2 1.2 0 1 1 1.697 1.697l-2.651 2.651 2.651 2.651z"/></svg>
-                    </span>
-                </div>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Error!</strong>
+                <span className="block sm:inline">{formError}</span>
+                <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setFormError('')}>
+                  <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 1 1-1.697 1.697l-2.651-2.65-2.651 2.65a1.2 1.2 0 1 1-1.697-1.697l2.651-2.651-2.651-2.651a1.2 1.2 0 1 1 1.697-1.697l2.651 2.651 2.651-2.651a1.2 1.2 0 1 1 1.697 1.697l-2.651 2.651 2.651 2.651z" /></svg>
+                </span>
+              </div>
             </div>
-        </div>
-    )
-}
+          </div>
+        )
+      }
 
-    {
-    showProgress && (
-        <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
+      {
+        showProgress && (
+          <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
             <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
-                <h2>Submitting...</h2>
-                <div style={{
-                    border: '4px solid #f3f3f3', /* Light grey */
-                    borderTop: '4px solid #3498db', /* Blue */
-                    borderRadius: '50%',
-                    width: '50px',
-                    height: '50px',
-                    animation: 'spin 2s linear infinite'
-                }}></div>
+              <h2>Submitting...</h2>
+              <div style={{
+                border: '4px solid #f3f3f3', /* Light grey */
+                borderTop: '4px solid #3498db', /* Blue */
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                animation: 'spin 2s linear infinite'
+              }}></div>
             </div>
-        </div>
-    )
-}
-{
-    showSuccessAlert && (
-        <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
+          </div>
+        )
+      }
+      {
+        showSuccessAlert && (
+          <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
             <div className="w-full max-w-md mx-auto">
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong className="font-bold">Success!</strong>
-                    <span className="block sm:inline">Training job submitted for training successfully!</span>
-                </div>
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Success!</strong>
+                <span className="block sm:inline">Training job submitted for training successfully!</span>
+              </div>
             </div>
-        </div>
-    )
-}
+          </div>
+        )
+      }
 
-{
-    showError && (
-        <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
+      {
+        showError && (
+          <div className="fixed inset-0 flex justify-center items-center z-50" style={{ backdropFilter: 'blur(8px)' }}>
             <div className="w-full max-w-md mx-auto">
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong className="font-bold">Error!</strong>
-                    <span className="block sm:inline">Failed to submit the model for training. Please try again.</span>
-                </div>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Error!</strong>
+                <span className="block sm:inline">Failed to submit the model for training. Please try again.</span>
+              </div>
             </div>
-        </div>
-    )
-}
+          </div>
+        )
+      }
 
 
       <div className="flex justify-between items-center">
@@ -641,7 +642,7 @@ const isFormValid = () => {
           type="button"
           className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow-lg"
           onClick={handleSubmit}
-          // disabled={!isFormValid()}
+        // disabled={!isFormValid()}
         >
           Submit
         </button>
