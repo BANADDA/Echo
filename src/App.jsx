@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import AuthModal from "./auth/AuthModal";
 import { auth } from "./auth/config/firebase-config";
 import MainContent from "./components/MainContent";
@@ -10,6 +10,7 @@ import PaymentMenu from "./screens/pages/payment/menu";
 import TrainingJobs from "./screens/pages/trainer/jobs";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
+import LoadingScreen from "./widgets/LoadingScreen";
 import UserInfoPopup from "./widgets/userInfo";
 
 // Function to fetch models from Hugging Face
@@ -164,9 +165,24 @@ function App() {
       }
     });
   }, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleStartLoading = () => setIsLoading(true);
+    const handleStopLoading = () => setIsLoading(false);
+
+    handleStartLoading();
+    // Simulating fetch/loading operation
+    const timer = setTimeout(handleStopLoading, 500); // Simulate loading time
+
+    // Cleanup function to clear timer when component unmounts or location changes
+    return () => clearTimeout(timer);
+  }, [location]); 
 
   return (
     <div className="flex flex-col">
+    {isLoading && <LoadingScreen />} 
       <Routes>
         <Route path="/" element={
           <>
