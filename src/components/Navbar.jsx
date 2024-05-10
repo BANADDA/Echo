@@ -11,9 +11,8 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
   const [authCheckCompleted, setAuthCheckCompleted] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
   const [userPhotoURL, setUserPhotoURL] = useState('');
-  const [userEmail, setUserEmail] = useState(''); // Store user's email
+  const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,19 +22,19 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
       if (user) {
         setIsAuthenticated(true);
         setUserPhotoURL(user.photoURL || 'path/to/default/image.png');
-        setUserEmail(user.email); // Set user's email
-        setUserName(user.displayName || "No Name"); // Set user's display name or a default value
+        setUserEmail(user.email);
+        setUserName(user.displayName || "No Name");
       } else {
         setIsAuthenticated(false);
         setUserPhotoURL('');
         setUserEmail('');
         setUserName('');
       }
+      setAuthCheckCompleted(true);
     });
     return () => unsubscribe();
   }, []);
 
-  // Function to sign out
   const handleSignOut = () => {
     signOut(auth).then(() => {
       navigate('/sign-in');
@@ -45,14 +44,13 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
   };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
+  const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
 
   return (
     <nav className="bg-green-900 fixed top-0 left-0 w-full z-10">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-            {/* Mobile menu button*/}
             <button
               type="button"
               className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
@@ -60,13 +58,7 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
               aria-expanded="false"
               onClick={toggleMobileMenu}
             >
-              <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              {/*
-            Icon when menu is closed.
-
-            Menu open: "hidden", Menu closed: "block"
-          */}
               <svg
                 className="block h-6 w-6"
                 fill="none"
@@ -81,11 +73,6 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
                   d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                 />
               </svg>
-              {/*
-            Icon when menu is open.
-
-            Menu open: "block", Menu closed: "hidden"
-          */}
               <svg
                 className="hidden h-6 w-6"
                 fill="none"
@@ -114,21 +101,18 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
                 </div>
               </div>
             ) : (
-              <div className="hidden sm:ml-6 sm:block">
+              <div className="sm:w-full flex justify-center items-center">
                 <div className="flex space-x-4">
-                  {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
                   <Link
                     to="/"
-                    className={`${location.pathname === '/' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                      } rounded-md px-3 py-2 text-sm font-medium`}
+                    className={`${location.pathname === '/' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} rounded-md px-3 py-2 text-sm font-medium`}
                     aria-current={location.pathname === '/' ? 'page' : undefined}
                   >
-                    Dashboard
+                    Home
                   </Link>
                   <Link
                     to="/models"
-                    className={`${location.pathname === '/models' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                      } rounded-md px-3 py-2 text-sm font-medium`}
+                    className={`${location.pathname === '/models' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} rounded-md px-3 py-2 text-sm font-medium`}
                     aria-current={location.pathname === '/models' ? 'page' : undefined}
                   >
                     Models
@@ -150,7 +134,6 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
             )}
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            {/* Theme Switch Button */}
             <div onClick={themeSwitch} className="cursor-pointer">
               {isDarkTheme ? (
                 <FaSun className="text-2xl text-white" />
@@ -158,30 +141,24 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
                 <FaMoon className="text-2xl text-yellow-400" />
               )}
             </div>
-            {/* Profile dropdown */}
             {isAuthenticated && (
               <div className="relative ml-3">
-                <div>
-                  <button
-                    type="button"
-                    className="p-2 relative flex items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    id="user-menu-button"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    onClick={toggleProfileDropdown}
-                  >
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">Open user menu</span>
-                    {/* User's Profile Image */}
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src={userPhotoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"} // Default image URL as fallback
-                      alt="User Profile"
-                    />
-                    {/* Optionally display user's name next to the image */}
-                    <span className="ml-2 text-white hidden sm:inline-block">{userName || "User"}</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="p-2 relative flex items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  id="user-menu-button"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  onClick={toggleProfileDropdown}
+                >
+                  <span className="sr-only">Open user menu</span>
+                  <img
+                    className="h-8 w-8 rounded-full"
+                    src={userPhotoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"}
+                    alt="User Profile"
+                  />
+                  <span className="ml-2 text-white hidden sm:inline-block">{userName || "User"}</span>
+                </button>
                 {isProfileDropdownOpen && (
                   <div
                     className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -190,9 +167,9 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
                     aria-labelledby="user-menu-button"
                     tabIndex={-1}
                   >
-                    {/* Active: "bg-gray-100", Not Active: "" */}
-                    <div onClick={onProfileClick} className="cursor-pointer
-                    block px-4 py-2 text-sm text-gray-700"
+                    <div
+                      onClick={onProfileClick}
+                      className="cursor-pointer block px-4 py-2 text-sm text-gray-700"
                       role="menuitem"
                       tabIndex={-1}
                       id="user-menu-item-0"
@@ -225,11 +202,9 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
           </div>
         </div>
       </div>
-      {/* Mobile menu, show/hide based on menu state. */}
       {isMobileMenuOpen && (
         <div className="sm:hidden" id="mobile-menu">
           <div className="space-y-1 px-2 pb-3 pt-2">
-            {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
             <a
               href="/"
               className="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium"
@@ -249,25 +224,17 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
             >
               Community
             </a>
-            <a
-              href="#"
-              className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
-            >
-              Pricing
-            </a>
           </div>
-        </div>)}
+        </div>
+      )}
     </nav>
   );
 };
 
-// Define prop types for type checking
 Navbar.propTypes = {
   isDarkTheme: PropTypes.bool.isRequired,
-  onProfileClick: PropTypes.bool.isRequired,
-  toggleTheme: PropTypes.func.isRequired,
-  toggleMobileMenu: PropTypes.func.isRequired,
-  themeSwitch: PropTypes.func
+  onProfileClick: PropTypes.func.isRequired,
+  themeSwitch: PropTypes.func.isRequired,
 };
 
 export default Navbar;
