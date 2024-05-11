@@ -54,7 +54,7 @@ export function Footer() {
           <Typography
             className="mb-4 text-center text-xl font-semibold text-gray-400  hover:text-white md:mb-0"
           >
-            &copy; {currentYear} <a href="https://material-tailwind.com/">J.E.R.V.I.S</a>. All
+            &copy; {currentYear} <a href="/">J.E.R.V.I.S</a>. All
             Rights Reserved.
           </Typography>
           <div className="flex gap-4 sm:justify-center">
