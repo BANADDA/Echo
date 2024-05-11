@@ -75,7 +75,8 @@ const NewJobModal = () => {
 
   const toggleModelSelectModal = () => setShowModelSelectModal(!showModelSelectModal);
 
-  const API_BASE_URL = 'http://localhost:3000';
+  // const API_BASE_URL = 'http://localhost:3000'; 
+  const API_BASE_URL = 'https://echo-model-training-server-r8f8.onrender.com'; 
 
   const handleCriteriaChange = (index, event) => {
     const newCriteria = [...validationCriteria];
