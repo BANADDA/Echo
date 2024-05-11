@@ -12,7 +12,7 @@ export const servicesData = [
   {
     title: "Train Language Models",
     icon: "./static/img/voice.png",
-    details: ["key detail", "key detail", "key detail"],
+    details: ["LLMs", "NLP", "Computer Vision", "Regression models"],
     primaryAction: "Train Now",
     secondaryAction: "Become a compute provider",
     poweredByText: "powered by bit tensor",

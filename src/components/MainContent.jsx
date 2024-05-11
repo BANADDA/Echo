@@ -63,18 +63,8 @@ const MainContent = ({ handleExploreClick }) => {
               ))}
             </div>
           </div>
-        {/* <div className="flex flex-wrap gap-4 pt-14">
-          {dataCards.map((card, index) => (
-            <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
-              <CardComponent
-                card={card}
-                onExplore={handleExploreClick}
-                isComingSoon={card.title !== "Large Language Models"} />
-            </div>
-          ))}
-        </div> */}
-
-      </div></>
+      </div>
+      </>
   );
 };
 
