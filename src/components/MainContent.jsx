@@ -37,9 +37,9 @@ const MainContent = ({ handleExploreClick }) => {
         <div className="flex flex-col bg-green-50 py-10 justify-center h-full rounded-lg dark:bg-slate-700 p-6">
           <div className="pl-10">
             <div className="text-center">
-              <h2 className="text-5xl font-bold text-gray-800 dark:text-white mb-2">Jarvis</h2>
-              <p className="text-gray-600 py-6 dark:text-gray-300 mb-4 font-medium">
-                Jervis is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Jarvis, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
+              <h2 className="text-6xl font-bold text-gray-800 dark:text-white mb-2">J.A.R.V.I.S</h2>
+              <p className="text-gray-600 py-6 px-52 dark:text-gray-300 mb-4 font-medium">
+                Jarvis is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Jarvis, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
                 Learn how Jarvis integrates seamlessly with your workflows to not only enhance model performance but also contribute towards a sustainable future in AI.
               </p>
             </div>
@@ -54,16 +54,16 @@ const MainContent = ({ handleExploreClick }) => {
             </button>
           </div>
         </div>
-          <div className="pt-14">
-            <h2 className="text-5xl text-center font-bold text-gray-800 dark:text-white mb-2">Services</h2>
-        <p className='text-center mb-8 text-xl text-gray-800 dark:text-white font-bold'>No Cost For Token Holders (min holding $100)</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-4">
-              {servicesData.map((service, index) => (
-                <ServiceCard key={index} {...service}
+        <div className="pt-14">
+          <h2 className="text-5xl text-center font-bold text-gray-800 dark:text-white mb-2">Services</h2>
+          <p className='text-center mb-8 text-lg text-gray-600 dark:text-white font-bold'>No Cost For Token Holders (min holding $100)</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-4">
+            {servicesData.map((service, index) => (
+              <ServiceCard key={index} {...service}
                 isComingSoon={service.title !== "Fine-Tune Models"} />
-              ))}
-            </div>
+            ))}
           </div>
+        </div>
         {/* <div className="flex flex-wrap gap-4 pt-14">
           {dataCards.map((card, index) => (
             <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
@@ -76,7 +76,7 @@ const MainContent = ({ handleExploreClick }) => {
         </div> */}
 
       </div>
-      </>
+    </>
   );
 };
 
