@@ -56,6 +56,7 @@ const MainContent = ({ handleExploreClick }) => {
         </div>
           <div className="pt-14">
             <h2 className="text-center text-3xl font-bold mb-8">Services</h2>
+        <p className='text-center mb-8 text-xl font-bold'>No Cost For Token Holders (min holding $100)</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-4">
               {servicesData.map((service, index) => (
                 <ServiceCard key={index} {...service}
@@ -63,6 +64,17 @@ const MainContent = ({ handleExploreClick }) => {
               ))}
             </div>
           </div>
+        {/* <div className="flex flex-wrap gap-4 pt-14">
+          {dataCards.map((card, index) => (
+            <div key={index} className="flex-auto min-w-0" style={{ flexBasis: 'calc(25% - 1rem)' }}>
+              <CardComponent
+                card={card}
+                onExplore={handleExploreClick}
+                isComingSoon={card.title !== "Large Language Models"} />
+            </div>
+          ))}
+        </div> */}
+
       </div>
       </>
   );
