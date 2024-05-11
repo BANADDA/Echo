@@ -10,6 +10,7 @@ import PaymentMenu from "./screens/pages/payment/menu";
 import TrainingJobs from "./screens/pages/trainer/jobs";
 import SignIn from "./screens/sign-in";
 import SignUp from "./screens/sign-up";
+import { Footer } from "./widgets/Footer";
 import LoadingScreen from "./widgets/LoadingScreen";
 import UserInfoPopup from "./widgets/userInfo";
 
@@ -203,11 +204,12 @@ function App() {
                 isMobileMenuOpen={isMobileMenuOpen}
                 onProfileClick={toggleProfileWidget} // Passing the function as a prop
               />
-              <div className="flex flex-1">
-                <div className="flex-1 p-10 px-8 bg-slate-100 dark:bg-slate-900 pt-20">
+              <div className="flex flex-1 bg-slate-100 dark:bg-slate-900 pb-36">
+                <div className="flex-1 p-10 px-8  pt-20">
                   <MainContent handleExploreClick={handleExploreClick} />
                 </div>
               </div>
+              <Footer />
             </>
           } />
           <Route path="/sign-in" element={<SignIn />} />
