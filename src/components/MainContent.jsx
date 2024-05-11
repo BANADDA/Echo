@@ -55,7 +55,7 @@ const MainContent = ({ handleExploreClick }) => {
           </div>
         </div>
           <div className="pt-14">
-            <h2 className="text-center text-3xl font-bold mb-8">Services</h2>
+            <h2 className="text-5xl text-center font-bold text-gray-800 dark:text-white mb-2">Services</h2>
         <p className='text-center mb-8 text-xl font-bold'>No Cost For Token Holders (min holding $100)</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-4">
               {servicesData.map((service, index) => (
