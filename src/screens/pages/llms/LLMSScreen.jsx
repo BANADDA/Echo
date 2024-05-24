@@ -67,6 +67,7 @@ const LLMSScreen = () => {
     }, [refreshJobs]);
 
     const filteredJobs = fineTuningJobs.filter(job => {
+        console.log("Fetched training jobs...", job);
         const matchName = job.suffix?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchId = (job.baseModel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             job.huggingFaceId?.toLowerCase().includes(searchTerm.toLowerCase()));
