@@ -1,7 +1,10 @@
 import {
+  CalendarToday as CalendarTodayIcon,
   CloudUpload as CloudUploadIcon,
   Info as InfoIcon,
+  Storage as StorageIcon,
   Timeline as TimelineIcon,
+  Timer as TimerIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -120,7 +123,7 @@ const JobDetails = ({ job }) => {
                   </Typography>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <InfoIcon color="primary" />
+                  <StorageIcon color="primary" />
                   <Typography variant="body1">
                     <strong>Dataset ID:</strong> {job.huggingFaceId}
                   </Typography>
@@ -132,19 +135,19 @@ const JobDetails = ({ job }) => {
                   </Typography>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <InfoIcon color="primary" />
+                  <CalendarTodayIcon color="primary" />
                   <Typography variant="body1">
                     <strong>Train Created On:</strong> {createdAt ? moment(createdAt).format('DD-MM-YYYY HH:mm') : 'N/A'}
                   </Typography>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <InfoIcon color="primary" />
+                  <CalendarTodayIcon color="primary" />
                   <Typography variant="body1">
                     <strong>Train Finished On:</strong> {finishedAt ? moment(finishedAt).format('DD-MM-YYYY HH:mm') : 'N/A'}
                   </Typography>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <InfoIcon color="primary" />
+                  <TimerIcon color="primary" />
                   <Typography variant="body1">
                     <strong>Train Duration:</strong> {job.duration}
                   </Typography>
