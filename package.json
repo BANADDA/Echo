@@ -19,7 +19,6 @@
     "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.4.5",
     "firebase": "^10.10.0",
     "moment": "^2.30.1",
     "plotly.js": "^2.32.0",
