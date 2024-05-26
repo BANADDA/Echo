@@ -2,6 +2,8 @@ import { Delete, Visibility } from '@mui/icons-material';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { deleteFineTuningJob } from '../auth/config/firebase-config';
 import ChartComponent from './ChartComponent';
 import JobDetails from './JobDetails';
 
@@ -18,10 +20,13 @@ function DashboardContent({
   totalPages,
   goToPreviousPage,
   goToNextPage,
-  changePage
+  changePage,
+  fetchJobs
 }) {
   const navigate = useNavigate();
   const [expandedRow, setExpandedRow] = useState(null);
+  const [selectedJobs, setSelectedJobs] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('All');
 
   const toggleRow = index => {
     setExpandedRow(expandedRow === index ? null : index);
@@ -30,6 +35,63 @@ function DashboardContent({
   const getRowStyle = index => ({
     backgroundColor: expandedRow === index ? '#ccffcc' : 'white',
     borderBottom: '1px solid #e0e0e0'
+  });
+
+  const handleSelectJob = (jobId) => {
+    setSelectedJobs(prevSelected => {
+      if (prevSelected.includes(jobId)) {
+        return prevSelected.filter(id => id !== jobId);
+      } else {
+        return [...prevSelected, jobId];
+      }
+    });
+  };
+
+  const handleDeleteJob = async (jobIds) => {
+    const result = await Swal.fire({
+      title: 'Are you sure you want to delete the selected models?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await Promise.all(jobIds.map(id => deleteFineTuningJob(id)));
+        Swal.fire('Deleted!', 'Your jobs have been deleted.', 'success');
+        setSelectedJobs([]);
+        fetchJobs(); // Refresh the job list after deletion
+      } catch (error) {
+        console.error('Error deleting jobs:', error);
+        Swal.fire('Error!', 'There was an error deleting your jobs.', 'error');
+      }
+    }
+  };
+
+  const handleDeleteSelectedJobs = () => {
+    handleDeleteJob(selectedJobs);
+  };
+
+  const handleSelectAllJobs = () => {
+    if (selectedJobs.length === currentJobs.length) {
+      setSelectedJobs([]);
+    } else {
+      setSelectedJobs(currentJobs.map(job => job.id));
+    }
+  };
+
+  const handleStatusFilterChange = (event) => {
+    setStatusFilter(event.target.value);
+  };
+
+  const filteredByStatusJobs = currentJobs.filter(job => {
+    if (statusFilter === 'All') {
+      return true;
+    }
+    return job.status === statusFilter;
   });
 
   return (
@@ -55,7 +117,7 @@ function DashboardContent({
       <h1 className="text-xl mb-2 font-bold">Training Runs</h1>
       <div className="overflow-x-auto py-6 px-3 bg-slate-100">
         <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
-          <div>
+          <div className="flex items-center">
             <button data-dropdown-toggle="dropdownRadio"
               className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
               type="button"
@@ -77,6 +139,21 @@ function DashboardContent({
                 <option value="Last year">Last year</option>
               </select>
             </button>
+            <div className="ml-4">
+              <label htmlFor="status-filter" className="mr-2 text-gray-700 dark:text-gray-400">Status:</label>
+              <select
+                id="status-filter"
+                onChange={handleStatusFilterChange}
+                value={statusFilter}
+                className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+              >
+                <option value="All">All</option>
+                <option value="pending">Pending</option>
+                <option value="running">Running</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
           </div>
           <label htmlFor="table-search" className="sr-only">Search</label>
           <div className="relative">
@@ -105,6 +182,15 @@ function DashboardContent({
             />
           </div>
         </div>
+        {selectedJobs.length > 0 && (
+          <button
+            className="bg-red-500 text-white font-semibold px-4 py-2 rounded shadow hover:bg-red-600 mb-4"
+            onClick={handleDeleteSelectedJobs}
+            disabled={selectedJobs.length === 0}
+          >
+            Delete Selected
+          </button>
+        )}
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -112,6 +198,8 @@ function DashboardContent({
                 <input
                   id="checkbox-all-search"
                   type="checkbox"
+                  checked={selectedJobs.length === currentJobs.length}
+                  onChange={handleSelectAllJobs}
                   className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
               </th>
@@ -124,13 +212,15 @@ function DashboardContent({
             </tr>
           </thead>
           <tbody>
-            {currentJobs.length > 0 ? currentJobs.map((job, index) => (
+            {filteredByStatusJobs.length > 0 ? filteredByStatusJobs.map((job, index) => (
               <React.Fragment key={index}>
                 <tr onClick={() => toggleRow(index)} style={getRowStyle(index)} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td className="w-4 p-4">
                     <input
                       id={`checkbox-table-search-${index}`}
                       type="checkbox"
+                      checked={selectedJobs.includes(job.id)}
+                      onChange={() => handleSelectJob(job.id)}
                       className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                     />
                   </td>
@@ -144,7 +234,14 @@ function DashboardContent({
                       <a className="font-medium text-green-600 dark:text-green-500 hover:underline mr-4">
                         <Visibility />
                       </a>
-                      <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline">
+                      <a
+                        href="#"
+                        className="font-medium text-red-600 dark:text-red-500 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteJob([job.id]);
+                        }}
+                      >
                         <Delete />
                       </a>
                     </div>

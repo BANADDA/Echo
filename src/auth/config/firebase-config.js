@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { addDoc, collection, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes } from 'firebase/storage';
 
 
@@ -169,7 +169,18 @@ async function userJobs() {
     }
 }
 
+// Function to delete a fine-tuning job
+async function deleteFineTuningJob(docId) {
+    console.log("Deleting job: ", docId);
+    try {
+        const docRef = doc(db, 'fine_tuning_jobs', docId);
+        await deleteDoc(docRef);
+        console.log('Fine-tuning job deleted with ID:', docId);
+    } catch (error) {
+        console.error('Error deleting fine-tuning job:', error);
+    }
+}
 
 // Get a reference to the auth service
-export { addTrainingJob, addTrainingJobMetadata, auth, fetchTrainingJobsForUser, submitFineTuningJob, updateTrainingJobStatus, userJobs };
+export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchTrainingJobsForUser, submitFineTuningJob, updateTrainingJobStatus, userJobs };
 

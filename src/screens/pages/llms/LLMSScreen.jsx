@@ -46,23 +46,22 @@ const LLMSScreen = () => {
     const [dateFilter, setDateFilter] = useState('All');
     const [totalPages, setTotalPages] = useState(10);
 
-
     const location = useLocation(); // This reacts to changes in the route
     const [refreshJobs, setRefreshJobs] = useState(false);
 
-    useEffect(() => {
-        const fetchJobs = async () => {
-            setIsLoading(true);
-            try {
-                const jobs = await userJobs();
-                console.log("Jobs fetched:", jobs); // Log the fetched jobs
-                setFineTuningJobs(jobs);
-            } catch (error) {
-                console.error('Failed to fetch jobs:', error);
-            }
-            setIsLoading(false);
-        };
+    const fetchJobs = async () => {
+        setIsLoading(true);
+        try {
+            const jobs = await userJobs();
+            console.log("Jobs fetched:", jobs); // Log the fetched jobs
+            setFineTuningJobs(jobs);
+        } catch (error) {
+            console.error('Failed to fetch jobs:', error);
+        }
+        setIsLoading(false);
+    };
 
+    useEffect(() => {
         fetchJobs();
     }, [refreshJobs]);
 
@@ -85,7 +84,6 @@ const LLMSScreen = () => {
         setActiveButton(buttonName); // This already sets the active button style
         setCurrentFilter(buttonName); // Add this line to set the current filter
     };
-
 
     const [user, setUser] = useState({
         isAuthenticated: false,
@@ -446,6 +444,7 @@ const LLMSScreen = () => {
                         goToPreviousPage={goToPreviousPage}
                         goToNextPage={goToNextPage}
                         changePage={changePage}
+                        fetchJobs={fetchJobs}
                     />
                 </div>
             </div>
