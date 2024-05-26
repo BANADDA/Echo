@@ -28,7 +28,7 @@ const Navigator = ({ onProfileClick }) => {
     };
 
     return (
-        <nav className="bg-gray-800 fixed top-0 left-64 right-0">
+        <nav className="bg-gray-800 fixed top-0 left-64 right-0 z-50">
             <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 lg:pl-0">
                 <div className="relative flex h-16 items-center justify-between">
                     {/* Adjusted search bar */}
