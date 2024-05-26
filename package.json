@@ -31,8 +31,6 @@
     "react-router-dom": "^6.22.3",
     "react-spinners": "^0.13.8",
     "recharts": "^2.12.7",
-    "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.5",
     "tw-elements": "^2.0.0"
   },
   "devDependencies": {
