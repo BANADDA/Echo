@@ -19,7 +19,7 @@ const GraphWidget = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    axios.get('https://echo-model-training-server-r8f8.onrender.com/wandb-data')
+    axios.get('https://jarvis-server-1.onrender.com/wandb-data')
       .then(response => {
         setData(response.data);
         setLoading(false);
