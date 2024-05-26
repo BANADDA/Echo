@@ -1,29 +1,30 @@
 import {
   CheckCircle as CheckCircleIcon,
-  CloudUpload as CloudUploadIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
   Error as ErrorIcon,
   HourglassEmpty as HourglassEmptyIcon,
-  Info as InfoIcon,
   PauseCircle as PauseCircleIcon,
-  Storage as StorageIcon,
-  Sync as SyncIcon,
-  Timeline as TimelineIcon,
+  Sync as SyncIcon
 } from '@mui/icons-material';
 import {
+  AppBar,
   Box,
   Button,
   Card,
   CardContent,
   Grid,
+  Paper,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import GraphWidget from '../wandb/wandGraphWidget';
 
 const theme = createTheme({
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
   palette: {
     primary: {
       main: '#1976d2',
@@ -35,6 +36,12 @@ const theme = createTheme({
 });
 
 const JobDetails = ({ job }) => {
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
   const convertTimestampToDate = (timestamp) => {
     if (!timestamp || !timestamp.seconds) return null;
     return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
@@ -42,6 +49,18 @@ const JobDetails = ({ job }) => {
 
   const createdAt = convertTimestampToDate(job.createdAt);
   const finishedAt = convertTimestampToDate(job.finishedAt);
+
+  const calculateDuration = (start, end) => {
+    if (!start) return 'N/A';
+    if (!end) return '00:00:00';
+    const duration = new Date(end - start);
+    const hours = duration.getUTCHours().toString().padStart(2, '0');
+    const minutes = duration.getUTCMinutes().toString().padStart(2, '0');
+    const seconds = duration.getUTCSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+  const trainDuration = calculateDuration(createdAt, finishedAt);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -60,75 +79,72 @@ const JobDetails = ({ job }) => {
     }
   };
 
+  const labels = [
+    'Model Type:',
+    'Dataset ID:',
+    'Train Created On:',
+    'Train Finished On:',
+    'Train Duration:',
+    'Tags:',
+  ];
+
+  const tag = `${job.baseModel}, ${job.huggingFaceId}, ${job.fineTuningType}, ${job.suffix}`;
+
+  const values = [
+    job.fineTuningType,
+    job.huggingFaceId,
+    createdAt?.toLocaleString(),
+    finishedAt ? finishedAt.toLocaleString() : 'N/A',
+    trainDuration,
+    tag,
+  ];
+
   return (
     <ThemeProvider theme={theme}>
       <Card sx={{ marginBottom: '20px', padding: '20px', boxShadow: 3 }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: '20px' }}>
             <Typography variant="h5" component="div">
-              {job.suffix} 💡
+              {job.suffix}
             </Typography>
             {getStatusIcon(job.status)}
+            <Box>
+              <Button variant="outlined" color="primary" sx={{ mr: 2 }}>+ Deploy</Button>
+              <Button variant="contained" color="error" sx={{ mr: 2 }}>Terminate</Button>
+              <Button variant="contained" color="success">Update</Button>
+            </Box>
           </Box>
-          <Box sx={{ backgroundColor: '#e8f5e9', padding: '16px', borderRadius: '8px' }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="space-between">
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <TimelineIcon color="primary" />
-                    <Typography variant="body1">
-                      <strong>Model Type:</strong> {job.fineTuningType}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <StorageIcon color="primary" />
-                    <Typography variant="body1">
-                      <strong>Dataset ID:</strong> {job.huggingFaceId}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <InfoIcon color="primary" />
-                    <Typography variant="body1">
-                      <strong>Model ID:</strong> {job.baseModel}
-                    </Typography>
-                  </Box>
-                </Box>
+          <AppBar position="static" color="default">
+            <Tabs value={tabValue} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
+              <Tab label="Overview" />
+              <Tab label="Visualization" />
+            </Tabs>
+          </AppBar>
+          {tabValue === 0 && (
+            <Box sx={{ padding: '10px', marginTop: '20px' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={2}>
+                  <Paper elevation={0} sx={{ padding: '10px', backgroundColor: '#f9f9f9' }}>
+                    {labels.map((label, index) => (
+                      <Typography variant="body2" color="textSecondary" key={index} gutterBottom>{label}</Typography>
+                    ))}
+                  </Paper>
+                </Grid>
+                <Grid item xs={10} md={10}>
+                  <Paper elevation={0} sx={{ padding: '10px', backgroundColor: '#f9f9f9' }}>
+                    {values.map((value, index) => (
+                      <Typography variant="body1" key={index}>{value}</Typography>
+                    ))}
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
-          {job.status !== 'pending' && job.status !== 'failed' && (
+            </Box>
+          )}
+          {tabValue === 1 && (
             <Box sx={{ marginTop: '20px' }}>
               <GraphWidget />
             </Box>
           )}
-          <Grid container spacing={2} justifyContent="center" sx={{ marginTop: '20px' }}>
-            {job.status === 'completed' && (
-              <Grid item xs={6}>
-                <Button variant="contained" color="secondary" startIcon={<CloudUploadIcon />} fullWidth>
-                  Deploy Model
-                </Button>
-              </Grid>
-            )}
-            {job.status === 'failed' && (
-              <Grid item xs={6}>
-                <Button variant="contained" color="primary" startIcon={<EditIcon />} fullWidth>
-                  Edit Training Job
-                </Button>
-              </Grid>
-            )}
-            {(job.status === 'failed' || job.status === 'pending') && (
-              <Grid item xs={6}>
-                <Button variant="contained" color="secondary" startIcon={<DeleteIcon />} fullWidth>
-                  Delete Model
-                </Button>
-              </Grid>
-            )}
-            <Grid item xs={6}>
-              <Button variant="contained" color="primary" startIcon={<InfoIcon />} fullWidth>
-                View More Details
-              </Button>
-            </Grid>
-          </Grid>
         </CardContent>
       </Card>
     </ThemeProvider>
