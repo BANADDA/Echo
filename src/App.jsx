@@ -13,6 +13,7 @@ import SignUp from "./screens/sign-up";
 import { Footer } from "./widgets/Footer";
 import LoadingScreen from "./widgets/LoadingScreen";
 import UserInfoPopup from "./widgets/userInfo";
+import ChatLayout from "./screens/pages/chat/ChatLayout";
 
 // Function to fetch models from Hugging Face
 const fetchModelDetails = async (modelId) => {
@@ -218,6 +219,7 @@ function App() {
           <Route path="/jobs" element={<TrainingJobs />} />
           <Route path="/models" element={<ModelsScreen />} />
           <Route path="/payment" element={<PaymentMenu />} />
+          <Route path="/chat" element={<ChatLayout />} />
         </Routes>
       )}
     </div>

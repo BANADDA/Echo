@@ -20,6 +20,7 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import GraphWidget from '../wandb/wandGraphWidget';
+import DeploymentModal from './DeploymentModal';
 
 const theme = createTheme({
   typography: {
@@ -37,6 +38,8 @@ const theme = createTheme({
 
 const JobDetails = ({ job }) => {
   const [tabValue, setTabValue] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJobForDeployment, setSelectedJobForDeployment] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -99,6 +102,22 @@ const JobDetails = ({ job }) => {
     tag,
   ];
 
+  const handleOpenDeploymentModal = (job) => {
+    setSelectedJobForDeployment(job);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseDeploymentModal = () => {
+    setIsModalOpen(false);
+    setSelectedJobForDeployment(null);
+  };
+
+  const handleConfirmDeployment = (jobId) => {
+    // Add your deployment logic here
+    console.log(`Deploying job with ID: ${jobId}`);
+    handleCloseDeploymentModal();
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Card sx={{ marginBottom: '20px', padding: '20px', boxShadow: 3 }}>
@@ -109,7 +128,12 @@ const JobDetails = ({ job }) => {
             </Typography>
             {getStatusIcon(job.status)}
             <Box>
-              <Button variant="outlined" color="primary" sx={{ mr: 2 }}>+ Deploy</Button>
+              <Button variant="outlined" color="primary" sx={{ mr: 2 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenDeploymentModal(job);
+              }}
+              >+ Deploy</Button>
               <Button variant="contained" color="error" sx={{ mr: 2 }}>Terminate</Button>
               <Button variant="contained" color="success">Update</Button>
             </Box>
@@ -147,7 +171,15 @@ const JobDetails = ({ job }) => {
           )}
         </CardContent>
       </Card>
+      {isModalOpen && (
+          <DeploymentModal
+            job={{ baseModel: job.baseModel, modelName: job.suffix }}
+            onClose={handleCloseDeploymentModal}
+            onConfirm={handleConfirmDeployment}
+          />
+        )}
     </ThemeProvider>
+
   );
 };
 
