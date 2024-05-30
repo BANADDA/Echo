@@ -12,16 +12,19 @@ const models = [
     modelName: 'LLama-2 Agric Assistant',
     modelIcon: <ChatIcon />,
     description: 'This is a short description of Model 1.',
+    inference_url:'https://x8wnetsdbdlewc-80.proxy.runpod.net/generate'
   },
   {
     modelName: 'LLama-3 Customer Support',
     modelIcon: <ChatIcon />,
     description: 'This is a short description of Model 2.',
+    inference_url:'https://x8wnetsdbdlewc-80.proxy.runpod.net/generate'
   },
   {
     modelName: 'My Tutor',
     modelIcon: <ChatIcon />,
     description: 'This is a short description of Model 3.',
+    inference_url:'https://x8wnetsdbdlewc-80.proxy.runpod.net/generate'
   },
 ];
 

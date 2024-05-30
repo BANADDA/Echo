@@ -219,7 +219,7 @@ function App() {
           <Route path="/jobs" element={<TrainingJobs />} />
           <Route path="/models" element={<ModelsScreen />} />
           <Route path="/payment" element={<PaymentMenu />} />
-          <Route path="/chat" element={<ChatLayout />} />
+          <Route path="/chat/:url" element={<ChatLayout />} />
         </Routes>
       )}
     </div>
