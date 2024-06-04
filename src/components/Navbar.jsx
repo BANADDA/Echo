@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from '../auth/config/firebase-config';
-import Logo from '../widgets/Logo';
 
 const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -90,9 +89,9 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
             </button>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <a href="/" className="flex flex-shrink-0 items-center">
+            {/* <a href="/" className="flex flex-shrink-0 items-center">
               <Logo />
-            </a>
+            </a> */}
             {authCheckCompleted && !isAuthenticated ? (
               <div className="hidden sm:block sm:ml-6">
                 <div className="flex space-x-4">

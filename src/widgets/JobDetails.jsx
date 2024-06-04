@@ -128,12 +128,16 @@ const JobDetails = ({ job }) => {
             </Typography>
             {getStatusIcon(job.status)}
             <Box>
-              <Button variant="outlined" color="primary" sx={{ mr: 2 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleOpenDeploymentModal(job);
-              }}
-              >+ Deploy</Button>
+              {job.status === 'completed' && (
+                <Button variant="outlined" color="primary" sx={{ mr: 2 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenDeploymentModal(job);
+                  }}
+                >
+                  + Deploy
+                </Button>
+              )}
               <Button variant="contained" color="error" sx={{ mr: 2 }}>Terminate</Button>
               <Button variant="contained" color="success">Update</Button>
             </Box>
@@ -172,14 +176,13 @@ const JobDetails = ({ job }) => {
         </CardContent>
       </Card>
       {isModalOpen && (
-          <DeploymentModal
-            job={{ baseModel: job.baseModel, modelName: job.suffix }}
-            onClose={handleCloseDeploymentModal}
-            onConfirm={handleConfirmDeployment}
-          />
-        )}
+        <DeploymentModal
+          job={{ baseModel: job.baseModel, modelName: job.suffix }}
+          onClose={handleCloseDeploymentModal}
+          onConfirm={handleConfirmDeployment}
+        />
+      )}
     </ThemeProvider>
-
   );
 };
 

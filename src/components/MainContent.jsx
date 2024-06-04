@@ -37,17 +37,18 @@ const MainContent = ({ handleExploreClick }) => {
         <div className="flex flex-col bg-green-50 py-10 justify-center h-full rounded-lg dark:bg-slate-700 p-6">
           <div className="pl-10">
             <div className="text-center">
-              <h2 className="text-6xl font-bold text-gray-800 dark:text-white mb-2">J.A.R.V.I.S</h2>
-              <p className="text-gray-600 py-6 px-36 dark:text-gray-300 mb-4 font-medium">
-                Jarvis is a cutting-edge MLOps system designed to streamline and optimize the machine learning lifecycle, from model development to deployment and monitoring. By leveraging Jarvis, teams can ensure their machine learning models are not only developed with precision but also deployed efficiently and maintained effectively in production environments.
-                Learn how Jarvis integrates seamlessly with your workflows to not only enhance model performance but also contribute towards a sustainable future in AI.
+              {/* <h2 className="text-6xl font-bold text-gray-800 dark:text-white mb-2">J.A.R.V.I.S</h2> */}
+              <p className="text-gray-600 py-6 px-36 dark:text-gray-300 mb-4 font-medium text-xl">
+                Fine-Tune models for you&apos;re exact use case. <br/>
+                Use any dataset from huggingface. <br/>
+                No coding required <br/>
               </p>
             </div>
           </div>
 
           <div className="self-center mt-auto">
             <button className="inline-flex items-center justify-center px-10 py-3 bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 text-white text-xl font-semibold rounded-full shadow-lg transition-all duration-300 ease-in-out group">
-              Learn More
+              Fine-Tune
               <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-4 w-4 transition-transform duration-300 ease-in-out group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
               </svg>
