@@ -1,4 +1,3 @@
-// BillingSection.js
 import {
     Card,
     CardBody,
@@ -9,12 +8,11 @@ import {
 import React, { useState } from 'react';
 import { FaBitcoin, FaCreditCard } from 'react-icons/fa';
 
-
 const BillingSection = () => {
     const [amount, setAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [tokens, setTokens] = useState('');
-    
+
     const tokenToAmount = {
         '5': '$25',
         '10': '$50',
@@ -31,7 +29,6 @@ const BillingSection = () => {
         // You can also set tokens based on amount if needed, e.g., reversing tokenToAmount lookup
     };
 
-    // Add a function to simulate payment submission
     const handlePaymentSubmit = () => {
         if (paymentMethod === 'card') {
             console.log(`Paying $${amount} with card`);
@@ -43,7 +40,7 @@ const BillingSection = () => {
     };
 
     return (
-        <div className="my-5 p-8">
+        <div className="flex flex-col ml-64 bg-white dark:bg-slate-900 p-6 mt-16">
             <Card className="m-5 mt-16 mb-8">
                 <CardBody>
                     <Typography variant="h5" color="blue-gray" className="text-xl mb-2">
@@ -56,7 +53,6 @@ const BillingSection = () => {
                     <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
                     <Typography variant="h6" className="text-xl mt-5 mb-2">Buy Tokens</Typography>
                     <div className="flex flex-row justify-start items-center mb-4">
-                        {/* Token Button Group */}
                         <div className="flex flex border rounded-md">
                             {Object.entries(tokenToAmount).map(([tokenValue, dollarValue], index, array) => (
                                 <button
@@ -69,12 +65,11 @@ const BillingSection = () => {
                                     `}
                                     onClick={() => handleTokenSelect(tokenValue)}
                                 >
-                                    {tokenValue} 
+                                    {tokenValue}
                                 </button>
                             ))}
                         </div>
 
-                        {/* Amount Input Field */}
                         <Input
                             className="border-2 border-gray-200 rounded-lg p-2 ml-4"
                             type="text"
@@ -86,9 +81,7 @@ const BillingSection = () => {
                     </div>
                 </CardBody>
                 <CardFooter className="flex items-center gap-4 pt-0">
-                    {/* Payment Method Buttons and Pay Button */}
                     <div className="flex flex-col space-y-2">
-                        {/* Payment Method Icons */}
                         <div className="flex gap-2">
                             <button
                                 className={`rounded-full p-2 ${paymentMethod === 'card' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
@@ -104,7 +97,6 @@ const BillingSection = () => {
                             </button>
                         </div>
 
-                        {/* Pay Button */}
                         <button
                             className="bg-green-500 text-white px-6 py-2 rounded-md text-sm font-bold w-full"
                             onClick={handlePaymentSubmit}
@@ -114,7 +106,7 @@ const BillingSection = () => {
                     </div>
                 </CardFooter>
             </Card>
-            {/* Card details - conditionally rendered */}
+
             {paymentMethod === 'card' && (
                 <div className="bg-white shadow-md rounded-lg p-6 mt-4">
                     <Typography variant="h6" className="text-xl mb-2">Configure Card Payments</Typography>

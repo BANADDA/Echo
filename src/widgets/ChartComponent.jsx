@@ -1,115 +1,127 @@
-import Chart from 'chart.js/auto';
-import React, { useEffect, useState } from 'react';
+import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
 
-const colorMap = {
-    'gpt': '#FF6384',
-    'bert': '#36A2EB',
-    't5': '#FFCE56',
-    'llama': '#4BC0C0',
-    'roberta': '#9966FF',
-    'transformer': '#FF9F40',
-    'xlnet': '#C9CBCF'
-};
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
-const ChartComponent = ({ jobs }) => {
-    const [chartData, setChartData] = useState({});
-    const llmTypes = ['gpt', 'bert', 't5', 'llama', 'roberta', 'transformer', 'xlnet'];
+const ChartComponent = ({ jobs, models }) => {
+  const processData = (data, type, dateField) => {
+    const counts = {};
+    data.forEach(item => {
+      if (item[dateField] && item[dateField].seconds) {
+        const date = new Date(item[dateField].seconds * 1000);
+        const yearMonthDay = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        if (!counts[yearMonthDay]) {
+          counts[yearMonthDay] = { jobs: 0, models: 0 };
+        }
+        counts[yearMonthDay][type]++;
+      }
+    });
+    return counts;
+  };
 
-    useEffect(() => {
-        const data = fetchData(jobs);
-        const processedData = processForChart(data);
-        setChartData(processedData);
+  const jobCounts = processData(jobs, 'jobs', 'createdAt');
+  const modelCounts = processData(models, 'models', 'deployedAt');
 
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: processedData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Model Type Count',
-                            color: '#111',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Occurrences',
-                            color: '#111',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        }
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'black'  // Adjust the color of legend text
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                }
-            }
-        });
+  const combinedCounts = {};
+  for (const key in jobCounts) {
+    if (!combinedCounts[key]) {
+      combinedCounts[key] = { jobs: 0, models: 0 };
+    }
+    combinedCounts[key].jobs += jobCounts[key].jobs;
+  }
 
-        return () => chart.destroy();
-    }, [jobs]);
+  for (const key in modelCounts) {
+    if (!combinedCounts[key]) {
+      combinedCounts[key] = { jobs: 0, models: 0 };
+    }
+    combinedCounts[key].models += modelCounts[key].models;
+  }
 
-    const fetchData = (jobs) => {
-        return jobs;
-    };
+  console.log('Job Counts:', jobCounts); // Debugging log
+  console.log('Model Counts:', modelCounts); // Debugging log
+  console.log('Combined Counts:', combinedCounts); // Debugging log
 
-    const processForChart = (data) => {
-        const groupedByDateAndType = {};
+  const labels = Object.keys(combinedCounts).sort();
+  const jobData = labels.map(label => combinedCounts[label].jobs || 0);
+  const modelData = labels.map(label => combinedCounts[label].models || 0);
 
-        data.forEach(item => {
-            const date = new Date(item.createdAt.seconds * 1000).toLocaleDateString();
-            const modelType = getModelType(item.baseModel || item.suffix);
-            if (!groupedByDateAndType[date]) {
-                groupedByDateAndType[date] = {};
-            }
-            if (!groupedByDateAndType[date][modelType]) {
-                groupedByDateAndType[date][modelType] = 1;
-            } else {
-                groupedByDateAndType[date][modelType]++;
-            }
-        });
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'Jobs Created',
+        data: jobData,
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+        barPercentage: 0.5,
+        barThickness: 'flex',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+      {
+        label: 'Models Deployed',
+        data: modelData,
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+        barPercentage: 0.5,
+        barThickness: 'flex',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+    ],
+  };
 
-        const labels = Object.keys(groupedByDateAndType);
-        const datasets = llmTypes.map(type => ({
-            label: type.toUpperCase(),
-            data: labels.map(label => groupedByDateAndType[label][type] || 0),
-            borderColor: colorMap[type],  // Use predefined colors
-            fill: false,
-            tension: 0.1
-        }));
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Jobs Created and Models Deployed Over Time',
+        font: {
+          size: 18,
+        },
+      },
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Date',
+          font: {
+            size: 14,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Count',
+          font: {
+            size: 14,
+          },
+        },
+      },
+    },
+  };
 
-        return { labels, datasets };
-    };
-
-    const getModelType = (modelName) => {
-        return llmTypes.find(type => modelName.toLowerCase().includes(type)) || 'other';
-    };
-
-    return (
-        <div className='bg-slate-100' style={{ height: '350px', width: '100%' }}> {/* Container to control size */}
-            <canvas id="myChart"></canvas>
-        </div>
-    );
+  return (
+    <div style={{ width: '100%', height: '300px' }}>
+      <Bar data={data} options={options} />
+    </div>
+  );
 };
 
 export default ChartComponent;

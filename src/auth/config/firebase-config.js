@@ -20,6 +20,51 @@ const auth = getAuth(app, provider);
 const db = getFirestore(app);
 const storage = getStorage(app);  // Initialize storage
 
+// Function to save deployed model information
+async function saveDeployedModel(jobId, modelId, serverUrl, modelName) {
+    const user = auth.currentUser;
+    if (!user) {
+        console.log("No user is currently signed in.");
+        return;
+    }
+
+    try {
+        // Add a new document with a generated ID to the 'deployed_models' collection
+        const docRef = await addDoc(collection(db, 'deployed_models'), {
+            userId: user.uid, // Use the UID of the signed-in user
+            jobId: jobId,
+            modelId: modelId,
+            serverUrl: serverUrl,
+            modelName: modelName,
+            deployedAt: new Date() // Timestamp for when the model is deployed
+        });
+        console.log("Deployed model saved with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error saving deployed model: ", e);
+    }
+}
+
+// Function to fetch a completed job by jobId
+async function fetchCompletedJobById(jobId) {
+    try {
+        console.log(`Fetching completed job with jobId: ${jobId}`); // Debugging log
+        const q = query(collection(db, 'completed_jobs'), where('jobId', '==', jobId));
+        const querySnapshot = await getDocs(q);
+        console.log(`Query snapshot size: ${querySnapshot.size}`); // Debugging log
+        if (!querySnapshot.empty) {
+            const docSnap = querySnapshot.docs[0];
+            console.log('Completed job data:', docSnap.data()); // Debugging log
+            return docSnap.data();
+        } else {
+            console.log('No such document!');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching completed job:', error);
+        throw error;
+    }
+}
+
 // Function to fetch all training jobs for the currently logged-in user
 async function fetchTrainingJobsForUser() {
     const user = auth.currentUser;
@@ -169,6 +214,10 @@ async function userJobs() {
     }
 }
 
+async function fetchJobs() {
+    return await userJobs(); // Call the userJobs function you already have
+}
+
 // Function to delete a fine-tuning job
 async function deleteFineTuningJob(docId) {
     console.log("Deleting job: ", docId);
@@ -182,5 +231,5 @@ async function deleteFineTuningJob(docId) {
 }
 
 // Get a reference to the auth service
-export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchTrainingJobsForUser, submitFineTuningJob, updateTrainingJobStatus, userJobs };
+export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchCompletedJobById, fetchJobs, fetchTrainingJobsForUser, saveDeployedModel, submitFineTuningJob, updateTrainingJobStatus, userJobs };
 

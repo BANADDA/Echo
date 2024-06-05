@@ -11,6 +11,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Grid,
   Paper,
   Tab,
@@ -19,6 +20,7 @@ import {
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
+import { fetchCompletedJobById } from '../auth/config/firebase-config';
 import GraphWidget from '../wandb/wandGraphWidget';
 import DeploymentModal from './DeploymentModal';
 
@@ -36,10 +38,11 @@ const theme = createTheme({
   },
 });
 
-const JobDetails = ({ job }) => {
+const JobDetails = ({ job, setActiveScreen }) => { // Add setActiveScreen here
   const [tabValue, setTabValue] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobForDeployment, setSelectedJobForDeployment] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -102,9 +105,18 @@ const JobDetails = ({ job }) => {
     tag,
   ];
 
-  const handleOpenDeploymentModal = (job) => {
-    setSelectedJobForDeployment(job);
-    setIsModalOpen(true);
+  const handleOpenDeploymentModal = async (job) => {
+    try {
+      setLoading(true);
+      console.log('Opening deployment modal for jobId:', job.id); // Debug log
+      const jobDetails = await fetchCompletedJobById(job.id);
+      setSelectedJobForDeployment(jobDetails);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching completed job details:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDeploymentModal = () => {
@@ -129,13 +141,16 @@ const JobDetails = ({ job }) => {
             {getStatusIcon(job.status)}
             <Box>
               {job.status === 'completed' && (
-                <Button variant="outlined" color="primary" sx={{ mr: 2 }}
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  sx={{ mr: 2 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleOpenDeploymentModal(job);
                   }}
                 >
-                  + Deploy
+                  {loading ? <CircularProgress size={24} /> : '+ Deploy'}
                 </Button>
               )}
               <Button variant="contained" color="error" sx={{ mr: 2 }}>Terminate</Button>
@@ -177,9 +192,11 @@ const JobDetails = ({ job }) => {
       </Card>
       {isModalOpen && (
         <DeploymentModal
+          complete_job={selectedJobForDeployment}
           job={{ baseModel: job.baseModel, modelName: job.suffix }}
           onClose={handleCloseDeploymentModal}
           onConfirm={handleConfirmDeployment}
+          setActiveScreen={setActiveScreen} // Pass setActiveScreen here
         />
       )}
     </ThemeProvider>

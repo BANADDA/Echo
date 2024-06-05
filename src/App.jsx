@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AuthProvider } from "./auth/AuthContext";
 import AuthModal from "./auth/AuthModal";
 import { auth } from "./auth/config/firebase-config";
 import MainContent from "./components/MainContent";
 import Navbar from "./components/Navbar";
+import ChatLayout from "./screens/pages/chat/ChatLayout";
 import LLMSScreen from "./screens/pages/llms/LLMSScreen";
 import ModelsScreen from "./screens/pages/llms/models";
 import PaymentMenu from "./screens/pages/payment/menu";
@@ -13,7 +15,6 @@ import SignUp from "./screens/sign-up";
 import { Footer } from "./widgets/Footer";
 import LoadingScreen from "./widgets/LoadingScreen";
 import UserInfoPopup from "./widgets/userInfo";
-import ChatLayout from "./screens/pages/chat/ChatLayout";
 
 // Function to fetch models from Hugging Face
 const fetchModelDetails = async (modelId) => {
@@ -181,6 +182,7 @@ function App() {
   }, []);
 
   return (
+    <AuthProvider>
     <div className="flex flex-col">
       {isLoading && <LoadingScreen />} 
       {!isLoading && (
@@ -223,6 +225,7 @@ function App() {
         </Routes>
       )}
     </div>
+    </AuthProvider>
   );
 }
 

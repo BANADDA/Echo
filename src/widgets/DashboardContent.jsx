@@ -1,9 +1,11 @@
 import { Delete, Visibility } from '@mui/icons-material';
+import { collection, getDocs, getFirestore } from 'firebase/firestore';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { deleteFineTuningJob } from '../auth/config/firebase-config';
+import { useAuth } from '../auth/AuthContext';
+import { deleteFineTuningJob, fetchJobs as fetchJobsFromFirebase } from '../auth/config/firebase-config';
 import ChartComponent from './ChartComponent';
 import JobDetails from './JobDetails';
 
@@ -21,12 +23,56 @@ function DashboardContent({
   goToPreviousPage,
   goToNextPage,
   changePage,
-  fetchJobs
+  fetchJobs, // You may have this passed as a prop from a parent component
+  setActiveScreen // Add this prop
 }) {
   const navigate = useNavigate();
   const [expandedRow, setExpandedRow] = useState(null);
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [statusFilter, setStatusFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth(); // Get the current user from context
+  const [models, setModels] = useState([]); // Add a state to hold models
+
+  useEffect(() => {
+    const loadJobs = async () => {
+      if (currentUser) { // Ensure the user is authenticated
+        try {
+          setLoading(true);
+          const jobs = await fetchJobsFromFirebase();
+          setActiveScreen(jobs); // Use the appropriate function to set the jobs
+        } catch (error) {
+          console.error('Error fetching jobs:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.log("No user is currently signed in.");
+        setLoading(false);
+      }
+    };
+
+    loadJobs();
+  }, [currentUser]);
+
+  useEffect(() => {
+    const fetchDeployedModels = async () => {
+      try {
+        const db = getFirestore();
+        const querySnapshot = await getDocs(collection(db, 'deployed_models'));
+        const modelsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setModels(modelsData);
+        console.log('Models fetched:', modelsData); // Debugging log
+      } catch (error) {
+        console.error('Failed to fetch deployed models:', error);
+      }
+    };
+
+    fetchDeployedModels();
+  }, []);
 
   const toggleRow = index => {
     setExpandedRow(expandedRow === index ? null : index);
@@ -112,7 +158,7 @@ function DashboardContent({
         </p>
       </div>
       <div className='mb-5'>
-        <ChartComponent jobs={filteredJobs} />
+        <ChartComponent jobs={filteredJobs} models={models} />
       </div>
       <h1 className="text-xl mb-2 font-bold">Training Runs</h1>
       <div className="overflow-x-auto py-6 px-3 bg-slate-100">
@@ -250,7 +296,7 @@ function DashboardContent({
                 {expandedRow === index && (
                   <tr className="bg-green-100 dark:bg-gray-700">
                     <td colSpan="7" className="p-4">
-                      <JobDetails job={job} />
+                      <JobDetails job={job} setActiveScreen={setActiveScreen} /> {/* Pass setActiveScreen here */}
                     </td>
                   </tr>
                 )}

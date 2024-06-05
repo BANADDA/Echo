@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Typography } from '@mui/material';
 import axios from 'axios';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Divider, CircularProgress, Snackbar,Alert} from '@mui/material';
+import React, { useState } from 'react';
+import { saveDeployedModel } from '../auth/config/firebase-config';
 
-const DeploymentModal = ({ job, onClose, onConfirm }) => {
+const DeploymentModal = ({ job, complete_job, onClose, setActiveScreen }) => {
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [deploymentSuccess, setDeploymentSuccess] = useState(false);
+  const [serverUrl, setServerUrl] = useState('');
 
-  if (!job) return null;
+  if (!job || !complete_job) return null;
+
+  const extractModelId = (url) => {
+    if (url) {
+      const urlObj = new URL(url);
+      return urlObj.pathname.substring(1);
+    }
+    return '';
+  };
+
+  const modelId = extractModelId(complete_job.huggingFaceRepoId);
 
   const handleConfirmDeployment = async () => {
     const modelData = {
-      model_id: job.baseModel,
+      model_id: modelId,
       model_name: job.modelName
     };
 
@@ -25,8 +38,13 @@ const DeploymentModal = ({ job, onClose, onConfirm }) => {
         }
       });
       console.log('Deployment successful:', response.data);
-      setSnackbarMessage('Deployment successful wait for around 5 minutes for your model to get ready ');
+      setSnackbarMessage('Deployment successful, wait for around 5 minutes for your model to get ready.');
       setSnackbarSeverity('success');
+      setServerUrl(response.data);
+
+      // Save deployed model information
+      await saveDeployedModel(complete_job.jobId, modelId, response.data, job.modelName);
+      setDeploymentSuccess(true);
     } catch (error) {
       console.error('Error deploying model:', error);
       setSnackbarMessage('Error deploying model: ' + error.message);
@@ -41,38 +59,126 @@ const DeploymentModal = ({ job, onClose, onConfirm }) => {
     setSnackbarOpen(false);
   };
 
+  const handleViewDeployedModel = () => {
+    setActiveScreen("Models");
+    onClose(); // Close the modal
+  };
+
   return (
     <div>
       <Dialog open={Boolean(job)} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Deploy Model</DialogTitle>
+        <DialogTitle>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+            {deploymentSuccess ? 'Model Deployed Successfully' : 'Deploy Model'}
+          </Typography>
+        </DialogTitle>
         <Divider />
         <DialogContent>
-          <Typography variant="h6" component="div" gutterBottom>
-            Model Specifications
-          </Typography>
-
-          <Box mb={2} p={4}>
-            <Typography variant="body1"><strong>Model Name:</strong> {job.modelName}</Typography>
-            <Typography variant="body1"><strong>Base Model:</strong> {job.baseModel}</Typography>
-          </Box>
+          {deploymentSuccess ? (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Your model has been deployed successfully.
+              </Typography>
+              <Box my={2} sx={{ backgroundColor: '#f5f5f5', p: 3, borderRadius: 2 }}>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Model Name:</strong> {job.modelName}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Base Model:</strong> {job.baseModel}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Fine-Tuned Model:</strong> {modelId}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Server URL:</strong> <a href={serverUrl} target="_blank" rel="noopener noreferrer">{serverUrl}</a>
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Model Specifications
+              </Typography>
+              <Box my={2} sx={{ backgroundColor: '#f5f5f5', p: 3, borderRadius: 2 }}>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Model Name:</strong> {job.modelName}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Base Model:</strong> {job.baseModel}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  <strong>Fine-Tuned Model:</strong> {modelId}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </DialogContent>
-        <DialogActions sx={{ p: 4 }}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleConfirmDeployment()}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Confirm Deployment'}
-          </Button>
+        <DialogActions sx={{ p: 3, justifyContent: 'space-between' }}>
+          {deploymentSuccess ? (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleViewDeployedModel}
+                sx={{
+                  minWidth: '180px',
+                  backgroundColor: '#1B6004',
+                  '&:hover': {
+                    backgroundColor: '#15C057',
+                  },
+                }}
+              >
+                View Deployed Model
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={onClose}
+                sx={{
+                  minWidth: '120px',
+                  backgroundColor: '#ff1744',
+                  '&:hover': {
+                    backgroundColor: '#d50000',
+                  },
+                }}
+              >
+                Close
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={onClose}
+                disabled={loading}
+                sx={{
+                  minWidth: '120px',
+                  backgroundColor: '#ff1744',
+                  '&:hover': {
+                    backgroundColor: '#d50000',
+                  },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleConfirmDeployment}
+                disabled={loading}
+                sx={{
+                  minWidth: '180px',
+                  backgroundColor: '#1B6004',
+                  '&:hover': {
+                    backgroundColor: '#15C057',
+                  },
+                }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Confirm Deployment'}
+              </Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
 
