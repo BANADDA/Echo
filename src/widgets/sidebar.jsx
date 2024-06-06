@@ -5,7 +5,7 @@ import CustomSliderIcon from "./CustomSliderIcon";
 
 const Sidebar = ({ user, activeScreen, onMenuClick }) => {
   const menuItems = [
-    { name: "Home", icon: <FaHome />, active: activeScreen === 'Home', screen: "Home" },
+    { name: "Home", icon: <FaHome />, active: false, screen: "Home" },
     { name: "Dashboard", icon: <CustomSliderIcon />, active: activeScreen === 'Dashboard', screen: "Dashboard" },
     { name: "Deployed Models", icon: <FaChartBar />, active: activeScreen === 'Models', screen: "Models" },
     { name: "Billing", icon: <FaWallet />, active: activeScreen === 'Billing', screen: "Billing" },
@@ -13,17 +13,26 @@ const Sidebar = ({ user, activeScreen, onMenuClick }) => {
     { name: "Docs", icon: <FaFileAlt />, active: activeScreen === 'Docs', screen: "Docs" },
   ];
 
+  const handleMenuClick = (screen) => {
+    if (screen === "Home") {
+      window.location.href = '/';
+    } else {
+      onMenuClick(screen);
+    }
+  };
+
   return (
     <div className="fixed top-0 left-0 h-full w-64 bg-[#0e3517] text-white">
       <Card className="bg-transparent shadow-none overflow-hidden w-full h-full">
         <CardBody className="flex flex-col justify-between h-full">
-          <a href='/' className="flex flex-shrink-0 items-center p-4 pt-0">
-            <img
-              className="h-11 w-auto"
-              src="./static/img/echo_1.png"
-              alt="Echo"
-            />
-          </a>
+          <div className="flex flex-shrink-0 items-center p-4 pt-0 justify-center">
+            <Typography
+              variant="h3"
+              className="text-white font-bold tracking-wide"
+            >
+              Jervis
+            </Typography>
+          </div>
           <nav className="mt-4">
             {menuItems.map((item, index) => (
               <React.Fragment key={index}>
@@ -32,7 +41,7 @@ const Sidebar = ({ user, activeScreen, onMenuClick }) => {
                   color="transparent"
                   className={`flex items-center gap-4 w-full px-4 py-2 rounded-lg text-left ${item.active ? "bg-green-500 text-white" : "hover:bg-green-600"}`}
                   ripple={false}
-                  onClick={() => onMenuClick(item.screen)}
+                  onClick={() => handleMenuClick(item.screen)}
                 >
                   {item.icon}
                   <span>{item.name}</span>

@@ -207,8 +207,8 @@ function App() {
                 isMobileMenuOpen={isMobileMenuOpen}
                 onProfileClick={toggleProfileWidget} // Passing the function as a prop
               />
-              <div className="flex flex-1 bg-slate-100 dark:bg-slate-900 pb-36">
-                <div className="flex-1 p-10 px-8  pt-20">
+              <div className="flex flex-1 bg-slate-100 dark:bg-slate-900">
+                <div className="flex-1 p-10 px-8  pt-20 pb-0 ">
                   <MainContent handleExploreClick={handleExploreClick} />
                 </div>
               </div>

@@ -110,11 +110,11 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
                     Home
                   </Link>
                   <Link
-                    to="/models"
+                    to="/llms"
                     className={`${location.pathname === '/models' ? 'bg-green-500/40 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} rounded-md px-3 py-2 text-sm font-medium`}
                     aria-current={location.pathname === '/models' ? 'page' : undefined}
                   >
-                    Models
+                    Dashboard
                   </Link>
                   <a
                     href="#"
@@ -209,13 +209,13 @@ const Navbar = ({ isDarkTheme, onProfileClick, themeSwitch }) => {
               className="bg-green-500/40 text-white block rounded-md px-3 py-2 text-base font-medium"
               aria-current="page"
             >
-              Dashboard
+              Home
             </a>
             <a
-              href="#"
+              href="/llms"
               className="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"
             >
-              Models
+              Dashboard
             </a>
             <a
               href="#"
