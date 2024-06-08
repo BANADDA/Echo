@@ -183,7 +183,7 @@ const MainContent = () => {
             <CardContent className={classes.cardContent}>
               <img src="./static/img/cv.png" alt="Framework Finder" className={classes.cardImage} />
               <div>
-                <Typography variant="h6">Inferance</Typography>
+                <Typography variant="h6">API Inference</Typography>
                 <Typography variant="body2" gutterBottom>
                   Deploy and chat with your fine-tuned models
                 </Typography>
