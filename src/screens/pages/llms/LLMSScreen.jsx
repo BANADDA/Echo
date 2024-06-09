@@ -5,7 +5,7 @@ import DashboardContent from '../../../widgets/DashboardContent';
 import Navigator from "../../../widgets/NavComponent";
 import Sidebar from "../../../widgets/sidebar";
 import UserInfoPopup from "../../../widgets/userInfo";
-import InferenceScreen from './InferenceScreen';
+import ChatUI from "./InferenceScreen";
 import ModelsComponent from './ModelsComponent';
 
 const LLMSScreen = () => {
@@ -165,7 +165,7 @@ const LLMSScreen = () => {
             case "Billing":
                 return <BillingSection />;
             case "Inference":
-                return <InferenceScreen model={selectedModel} />;
+                return <ChatUI model={selectedModel} setActiveScreen={setActiveScreen} />;
             default:
                 return <DashboardContent 
                             filteredJobs={filteredJobs} 

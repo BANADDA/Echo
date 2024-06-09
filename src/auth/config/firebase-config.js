@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes } from 'firebase/storage';
+
+const sanitizeId = (id) => id.replace(/\//g, '|');
 
 
 const firebaseConfig = {
@@ -19,6 +21,40 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth(app, provider);
 const db = getFirestore(app);
 const storage = getStorage(app);  // Initialize storage
+
+// Save chat history
+const saveChatHistory = async (userId, id, chatHistory) => {
+    const sanitizedId = sanitizeId(id);
+    const chatRef = doc(db, 'chatHistories', `${userId}_${sanitizedId}`);
+    console.log(`Saving chat histories for userId: ${userId}, modelId: ${id}`);
+    console.log('Chat histories to save:', chatHistory);
+    try {
+      await setDoc(chatRef, { chatHistories: chatHistory }, { merge: true });
+      console.log('Chat histories saved successfully.');
+    } catch (error) {
+      console.error('Error saving chat histories:', error);
+    }
+  };
+  
+  // Retrieve chat history
+const getChatHistory = async (userId, id) => {
+    const sanitizedId = sanitizeId(id);
+    const chatRef = doc(db, 'chatHistories', `${userId}_${sanitizedId}`);
+    console.log(`Retrieving chat histories for userId: ${userId}, modelId: ${id}`);
+    try {
+      const chatDoc = await getDoc(chatRef);
+      if (chatDoc.exists()) {
+        console.log('Chat histories retrieved successfully:', chatDoc.data().chatHistories);
+        return chatDoc.data().chatHistories;
+      } else {
+        console.log('No chat histories found.');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error retrieving chat histories:', error);
+      return [];
+    }
+  };
 
 // Function to save deployed model information
 async function saveDeployedModel(jobId, modelId, serverUrl, modelName) {
@@ -231,5 +267,5 @@ async function deleteFineTuningJob(docId) {
 }
 
 // Get a reference to the auth service
-export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchCompletedJobById, fetchJobs, fetchTrainingJobsForUser, saveDeployedModel, submitFineTuningJob, updateTrainingJobStatus, userJobs };
+export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchCompletedJobById, fetchJobs, fetchTrainingJobsForUser, getChatHistory, saveChatHistory, saveDeployedModel, submitFineTuningJob, updateTrainingJobStatus, userJobs };
 
