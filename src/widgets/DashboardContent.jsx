@@ -40,7 +40,8 @@ function DashboardContent({
         try {
           setLoading(true);
           const jobs = await fetchJobsFromFirebase();
-          setActiveScreen(jobs); // Use the appropriate function to set the jobs
+          const sortedJobs = jobs.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds); // Sort jobs by createdAt timestamp
+          setActiveScreen(sortedJobs); // Use the appropriate function to set the jobs
         } catch (error) {
           console.error('Error fetching jobs:', error);
         } finally {
@@ -139,6 +140,8 @@ function DashboardContent({
     }
     return job.status === statusFilter;
   });
+
+  const sortedJobs = filteredByStatusJobs.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
 
   return (
     <div className="flex flex-col ml-64 bg-white dark:bg-slate-900 p-6 mt-16">
@@ -258,7 +261,7 @@ function DashboardContent({
             </tr>
           </thead>
           <tbody>
-            {filteredByStatusJobs.length > 0 ? filteredByStatusJobs.map((job, index) => (
+            {sortedJobs.length > 0 ? sortedJobs.map((job, index) => (
               <React.Fragment key={index}>
                 <tr onClick={() => toggleRow(index)} style={getRowStyle(index)} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td className="w-4 p-4">

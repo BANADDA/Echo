@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../auth/config/firebase-config';
+import { auth, newTrainingJob } from '../auth/config/firebase-config';
 import ModelService from '../data/ModelList';
 
 const NewJobModal = () => {
@@ -74,9 +74,6 @@ const NewJobModal = () => {
   };
 
   const toggleModelSelectModal = () => setShowModelSelectModal(!showModelSelectModal);
-
-  // const API_BASE_URL = 'http://localhost:3000'; 
-  const API_BASE_URL = 'https://echo-model-training-server-r8f8.onrender.com'; 
 
   const handleCriteriaChange = (index, event) => {
     const newCriteria = [...validationCriteria];
@@ -158,51 +155,36 @@ const NewJobModal = () => {
     //   return;
     // }
 
-    const formData = new FormData();
-    formData.append('userId', user.uid);
-    formData.append('baseModel', baseModel);
-    formData.append('modelParams', modelParams);
-    formData.append('trainingDataOption', trainingDataOption);
-    formData.append('validationDataOption', validationDataOption);
-    formData.append('suffix', suffix);
-    formData.append('seed', seed);
-    formData.append('huggingFaceId', huggingFaceId);
-    formData.append('validationCriteria', validationCriteria);
-    formData.append('batchSize', batchSize);
-    formData.append('batchSizeAuto', batchSizeAuto);
-    formData.append('learningRateMultiplier', learningRateMultiplier);
-    formData.append('learningRateAuto', learningRateAuto);
-    formData.append('numberOfEpochs', numberOfEpochs);
-    formData.append('numberOfEpochsAuto', numberOfEpochsAuto);
-    formData.append('fineTuningType', fineTuningType);
-    formData.append('expectedOutcome', expectedOutcome);
-    if (uploadedFile) {
-      formData.append('trainingFile', uploadedFile);
-    }
-    if (validationFile) {
-      formData.append('validationFile', validationFile);
-    }
-
-    console.log("Upload data: ", formData);
+    const jobData = {
+      userId: user.uid,
+      baseModel,
+      modelParams,
+      trainingDataOption,
+      validationDataOption,
+      suffix,
+      seed,
+      huggingFaceId,
+      validationCriteria,
+      batchSize,
+      batchSizeAuto,
+      learningRateMultiplier,
+      learningRateAuto,
+      numberOfEpochs,
+      numberOfEpochsAuto,
+      fineTuningType,
+      expectedOutcome,
+      status: 'pending'
+    };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/submit-training`, {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
-
-      console.log("Response: ", result);
-
-      if (response.ok) {
-        console.log('Job submitted successfully', result);
-        setShowSuccessAlert(true);
-        setTimeout(() => setShowSuccessAlert(false), 2000);
+      await newTrainingJob(jobData);
+      console.log('Job submitted successfully');
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+        setShowSuccessAlert(false);
         resetForm();
-        // navigate('/llms')
-      } else {
-        throw new Error(result.error || 'Failed to submit job');
-      }
+        navigate('/llms');
+      }, 2000);
     } catch (error) {
       console.error('Error submitting the job:', error);
       setShowError(true);

@@ -141,6 +141,20 @@ async function addTrainingJobMetadata(docId, modelId, datasetId, imageTag, compu
     }
 }
 
+const newTrainingJob = async (jobData) => {
+    try {
+        // Add a new document with a generated ID to the 'fine_tuning_jobs' collection
+        const docRef = await addDoc(collection(db, 'fine_tuning_jobs'), {
+            ...jobData,
+            createdAt: new Date(),
+            status: 'pending'
+        });
+        return { message: 'Job added successfully', jobId: docRef.id };
+    } catch (error) {
+        console.error('Error adding training job to Firestore:', error);
+        throw new Error('Failed to add training job');
+    }
+};
 
 // Function to add a new training job
 async function addTrainingJob(modelName, modelId, datasetId, gpu, licenseSelected, domain, jobStatus) {
@@ -267,5 +281,5 @@ async function deleteFineTuningJob(docId) {
 }
 
 // Get a reference to the auth service
-export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchCompletedJobById, fetchJobs, fetchTrainingJobsForUser, getChatHistory, saveChatHistory, saveDeployedModel, submitFineTuningJob, updateTrainingJobStatus, userJobs };
+export { addTrainingJob, addTrainingJobMetadata, auth, deleteFineTuningJob, fetchCompletedJobById, fetchJobs, fetchTrainingJobsForUser, getChatHistory, newTrainingJob, saveChatHistory, saveDeployedModel, submitFineTuningJob, updateTrainingJobStatus, userJobs };
 
