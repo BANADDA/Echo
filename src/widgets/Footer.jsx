@@ -23,7 +23,7 @@ export function Footer() {
       <div className="mx-auto w-full max-w-7xl px-8">
         <div className="grid grid-cols-1 justify-between gap-4 md:grid-cols-2">
           <Typography className="mb-6 text-3xl font-bold text-white">
-            J.E.R.V.I.S
+            J.A.R.V.I.S
           </Typography>
           <div className="grid grid-cols-3 justify-between gap-4">
             {LINKS.map(({ title, items }) => (
@@ -54,7 +54,7 @@ export function Footer() {
           <Typography
             className="mb-4 text-center text-xl font-semibold text-gray-400  hover:text-white md:mb-0"
           >
-            &copy; {currentYear} <a href="/">J.E.R.V.I.S</a>. All
+            &copy; {currentYear} <a href="/">J.A.R.V.I.S</a>. All
             Rights Reserved.
           </Typography>
           <div className="flex gap-4 sm:justify-center">

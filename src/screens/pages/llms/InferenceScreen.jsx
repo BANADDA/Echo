@@ -61,24 +61,27 @@ const ChatUI = ({ model, setActiveScreen }) => {
 
   const sendMessageToModel = async (message) => {
     try {
+      const sanitizedEndpointUrl = model.serverUrl.trim();
       const requestData = {
-        server_url: model.serverUrl,
+        endpoint_url: sanitizedEndpointUrl,
         prompt: message,
       };
 
+      console.log("Request data", requestData);
+  
       const response = await axios.post('https://jarvis-server-1.onrender.com/inference', requestData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+  
       if (response.status !== 200) {
         throw new Error(`Server responded with status: ${response.status}`);
       }
-
+  
       const data = response.data;
       const aiMessage = { text: data.text, sender: 'ai' };
-
+  
       setConversation((prevConversation) => {
         const updatedConversation = [...prevConversation, aiMessage];
         updateChatHistories(updatedConversation);
@@ -89,6 +92,38 @@ const ChatUI = ({ model, setActiveScreen }) => {
       alert(`Error: ${error.message}`);
     }
   };
+  
+
+  // const sendMessageToModel = async (message) => {
+  //   try {
+  //     const requestData = {
+  //       server_url: model.serverUrl,
+  //       prompt: message,
+  //     };
+
+  //     const response = await axios.post('https://jarvis-server-1.onrender.com/inference', requestData, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     });
+
+  //     if (response.status !== 200) {
+  //       throw new Error(`Server responded with status: ${response.status}`);
+  //     }
+
+  //     const data = response.data;
+  //     const aiMessage = { text: data.text, sender: 'ai' };
+
+  //     setConversation((prevConversation) => {
+  //       const updatedConversation = [...prevConversation, aiMessage];
+  //       updateChatHistories(updatedConversation);
+  //       return updatedConversation;
+  //     });
+  //   } catch (error) {
+  //     console.error('Error sending message to model:', error);
+  //     alert(`Error: ${error.message}`);
+  //   }
+  // };
 
   const updateChatHistories = (newConversation) => {
     setChatHistories((prevHistories) => {
